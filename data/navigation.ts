@@ -1,22 +1,10 @@
-export const navigation = [
-  {
-    name: "Home",
-    href: "/",
-  },
-  {
-    name: "Tools",
-    href: "/tools",
-  },
-  {
-    name: "Categories",
-    href: "/categories",
-  },
-  {
-    name: "Blog",
-    href: "/blog",
-  },
-  {
-    name: "Contact",
-    href: "/contact",
-  },
+// 
+
+
+export const NAV_LINKS = [
+  { name: "Home", href: "/" },
+  { name: "Categories", href: "/categories" },
+  { name: "All Tools", href: "/categories" }, // Changed from '/' to '/categories'
+  { name: "Blog", href: "/blog" },
+  { name: "Contact", href: "/contact" },
 ];
