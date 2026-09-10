@@ -94,4 +94,18 @@ export const tools = [
         description: "Generate placeholder text (paragraphs, sentences, or words) for designs and layouts.",
         featured: true,
     },
+    {
+        id: "image-resizer",
+        slug: "image-resizer",
+        name: "Image Resizer & Converter",
+        description: "Resize dimensions, adjust quality, and convert PNG, JPG, or WEBP images directly in your browser.",
+        category: "Image",
+    },
+    {
+        id: "text-summarizer",
+        slug: "text-summarizer",
+        name: "AI Text Summarizer & Paraphraser",
+        description: "Summarize long articles or rewrite text instantly using fast browser-based processing.",
+        category: "Text",
+    },
 ];
