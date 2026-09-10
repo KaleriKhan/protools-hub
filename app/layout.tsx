@@ -21,6 +21,9 @@ export const metadata: Metadata = {
   },
   description:
     "Free online tools for PDF, Images, Text, Developers, Calculators and AI.",
+  verification: {
+    google: "rq3tNm5NYZhdANMOmkf2N43QsMXB3FJ-do9hnjIoxbE",
+  },
 };
 
 export default function RootLayout({
@@ -46,4 +49,4 @@ export default function RootLayout({
       </body>
     </html>
   );
-};
+}
