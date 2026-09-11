@@ -9,7 +9,6 @@ export default function BlogPostPage({
 }: {
     params: Promise<{ slug: string }>;
 }) {
-    // Unwrap the async params Promise using React.use()
     const resolvedParams = use(params);
     const slug = resolvedParams.slug;
 
@@ -32,6 +31,15 @@ export default function BlogPostPage({
             author: "Dev Team",
             content:
                 "Large image file sizes slow down website loading speeds and waste bandwidth. Learn how to crop, adjust dimensions, and convert images into WebP/PNG formats directly in your browser using local HTML5 canvas processing. Zero server uploads, instant export, and 100% privacy guaranteed.",
+        },
+        "how-ai-text-summarization-saves-time": {
+            title: "How AI Text Summarization Saves Hours of Reading Time",
+            category: "Productivity",
+            date: "Sep 11, 2026",
+            readTime: "5 min read",
+            author: "Dev Team",
+            content:
+                "Extract key insights from lengthy articles, essays, and reports in seconds. Our browser-native text summarizer and paraphraser processes your content instantly with complete privacy—no data sent to external servers.",
         },
         "how-local-image-compression-speeds-up-seo": {
             title: "How Local Image Compression Speeds Up Your Website SEO",
@@ -115,7 +123,7 @@ export default function BlogPostPage({
                         Client-side processing guarantees that no third-party server intercepts your confidential data. With local browser APIs, performance scales with your machine's hardware capabilities rather than waiting for remote cloud queue servers.
                     </p>
 
-                    {/* CTA Box linking directly to the Image Resizer Tool */}
+                    {/* CTA Box for Image Resizer */}
                     {slug === "how-to-resize-images-without-losing-quality" && (
                         <div className="mt-6 rounded-2xl bg-blue-50/60 border border-blue-100 p-6 space-y-3">
                             <h3 className="font-bold text-slate-900 text-base">
@@ -129,6 +137,25 @@ export default function BlogPostPage({
                                 className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-xs font-bold text-white shadow-md hover:bg-blue-700 transition"
                             >
                                 <span>Try Free Image Resizer Tool</span>
+                                <span>→</span>
+                            </Link>
+                        </div>
+                    )}
+
+                    {/* CTA Box for Text Summarizer */}
+                    {slug === "how-ai-text-summarization-saves-time" && (
+                        <div className="mt-6 rounded-2xl bg-blue-50/60 border border-blue-100 p-6 space-y-3">
+                            <h3 className="font-bold text-slate-900 text-base">
+                                Need to Summarize or Paraphrase Text Right Now?
+                            </h3>
+                            <p className="text-xs text-slate-600">
+                                Try our 100% free, browser-native Text Summarizer & Paraphraser tool.
+                            </p>
+                            <Link
+                                href="/tools/text-summarizer"
+                                className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-xs font-bold text-white shadow-md hover:bg-blue-700 transition"
+                            >
+                                <span>Try AI Text Summarizer Tool</span>
                                 <span>→</span>
                             </Link>
                         </div>
