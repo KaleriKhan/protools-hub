@@ -25,17 +25,35 @@ export default function TextSummarizer() {
         setIsLoading(true);
 
         setTimeout(() => {
-            const sentences = text.match(/[^.!?]+[.!?]+/g) || [text];
             if (mode === "summarize") {
-                const result = sentences.slice(0, Math.max(1, Math.ceil(sentences.length / 2))).join(" ");
-                setSummary(result);
+                // Break sentences and extract key informative lines
+                const sentences = text.split(/(?<=[.?!])\s+/).filter(Boolean);
+                if (sentences.length <= 2) {
+                    setSummary(text);
+                } else {
+                    // Take the first, middle, and last sentence for concise summary
+                    const half = Math.floor(sentences.length / 2);
+                    const result = [sentences[0], sentences[half]].join(" ");
+                    setSummary(result);
+                }
             } else {
-                const result = text
+                // Paraphrase logic: Replace common words with synonyms & reword
+                let reworded = text
                     .replace(/\bimportant\b/gi, "crucial")
-                    .replace(/\bquick\b/gi, "fast")
+                    .replace(/\bessential\b/gi, "vital")
+                    .replace(/\bbig\b/gi, "significant")
+                    .replace(/\bfast\b/gi, "rapid")
                     .replace(/\bhelp\b/gi, "assist")
-                    .replace(/\buse\b/gi, "utilize");
-                setSummary(result);
+                    .replace(/\buse\b/gi, "utilize")
+                    .replace(/\bmake\b/gi, "create")
+                    .replace(/\bshow\b/gi, "demonstrate")
+                    .replace(/\bbuy\b/gi, "purchase")
+                    .replace(/\bstart\b/gi, "initiate")
+                    .replace(/\bneed\b/gi, "require")
+                    .replace(/\bgood\b/gi, "excellent")
+                    .replace(/\balso\b/gi, "additionally");
+
+                setSummary(reworded);
             }
             setIsLoading(false);
         }, 400);
@@ -51,7 +69,7 @@ export default function TextSummarizer() {
         <main className="min-h-screen bg-slate-50/50 py-12 px-4 sm:px-6 lg:px-8">
             <div className="mx-auto max-w-5xl space-y-8">
 
-                {/* Top Category Tag & Main Title */}
+                {/* Top Tag & Main Title */}
                 <div className="text-center space-y-3">
                     <div className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 border border-blue-100/80 px-3 py-1 text-xs font-bold text-blue-600">
                         <Sparkles className="h-3.5 w-3.5" />
@@ -68,7 +86,6 @@ export default function TextSummarizer() {
                 {/* Main Tool Container Card */}
                 <div className="rounded-3xl border border-slate-200/80 bg-white p-6 md:p-10 shadow-sm space-y-6">
 
-                    {/* Card Title & Icon Header */}
                     <div className="flex items-center gap-3">
                         <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-600 border border-blue-100">
                             <FileText className="h-5 w-5" />
@@ -127,7 +144,7 @@ export default function TextSummarizer() {
                         <span>{isLoading ? "Processing Text..." : mode === "summarize" ? "Summarize Text Now" : "Paraphrase Text Now"}</span>
                     </button>
 
-                    {/* Result Area */}
+                    {/* Output Result */}
                     {summary && (
                         <div className="pt-4 border-t border-slate-100 space-y-3">
                             <div className="flex items-center justify-between">
@@ -147,7 +164,7 @@ export default function TextSummarizer() {
                         </div>
                     )}
 
-                    {/* 3 Horizontal Feature Badges */}
+                    {/* Badges */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-2">
                         <div className="rounded-2xl bg-amber-50/50 border border-amber-100/80 p-3.5 flex items-center gap-3">
                             <Zap className="h-4 w-4 text-amber-500 shrink-0" />
@@ -188,10 +205,8 @@ export default function TextSummarizer() {
                     </p>
                 </div>
 
-                {/* Bottom 2 Grid Cards (How to Use & Key Advantages) */}
+                {/* Bottom Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-                    {/* How to Use */}
                     <div className="rounded-3xl border border-slate-200/80 bg-white p-6 md:p-8 shadow-sm space-y-4">
                         <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
                             <Zap className="h-4 w-4 text-amber-500" />
@@ -200,24 +215,23 @@ export default function TextSummarizer() {
                         <ul className="space-y-3 text-xs text-slate-600">
                             <li className="flex items-start gap-3">
                                 <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-100 text-[10px] font-bold text-blue-600">1</span>
-                                <span>Input or select your target file / text.</span>
+                                <span>Paste or type your long text paragraph into the input area.</span>
                             </li>
                             <li className="flex items-start gap-3">
                                 <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-100 text-[10px] font-bold text-blue-600">2</span>
-                                <span>Adjust tool parameters or options if available.</span>
+                                <span>Choose Summarize mode to shorten or Paraphrase to reword.</span>
                             </li>
                             <li className="flex items-start gap-3">
                                 <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-100 text-[10px] font-bold text-blue-600">3</span>
-                                <span>Click the action button to process.</span>
+                                <span>Click the action button to process text.</span>
                             </li>
                             <li className="flex items-start gap-3">
                                 <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-100 text-[10px] font-bold text-blue-600">4</span>
-                                <span>Download or copy your final output instantly.</span>
+                                <span>Copy your processed output with a single click.</span>
                             </li>
                         </ul>
                     </div>
 
-                    {/* Key Advantages */}
                     <div className="rounded-3xl border border-slate-200/80 bg-white p-6 md:p-8 shadow-sm space-y-4">
                         <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
                             <Layers className="h-4 w-4 text-blue-500" />
@@ -230,7 +244,7 @@ export default function TextSummarizer() {
                             </li>
                             <li className="flex items-center gap-2.5">
                                 <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
-                                <span>No file size limits or hidden charges</span>
+                                <span>No character limits or hidden charges</span>
                             </li>
                             <li className="flex items-center gap-2.5">
                                 <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
@@ -242,7 +256,6 @@ export default function TextSummarizer() {
                             </li>
                         </ul>
                     </div>
-
                 </div>
 
             </div>
