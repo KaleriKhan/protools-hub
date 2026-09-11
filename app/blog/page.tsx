@@ -29,6 +29,29 @@ type BlogPost = {
 const POSTS: BlogPost[] = [
     {
         id: "1",
+        slug: "how-to-resize-images-without-losing-quality",
+        title: "How to Resize Images Without Losing Quality (Fast & Free)",
+        excerpt:
+            "Learn how to crop, adjust dimensions, and convert images into WebP/PNG formats directly in your browser without losing quality.",
+        category: "Optimization",
+        author: "Dev Team",
+        date: "Sep 11, 2026",
+        readTime: "4 min read",
+        featured: true,
+    },
+    {
+        id: "2",
+        slug: "how-ai-text-summarization-saves-time",
+        title: "How AI Text Summarization Saves Hours of Reading Time",
+        excerpt:
+            "Extract key insights from lengthy articles, essays, and reports in seconds with complete privacy.",
+        category: "Tools",
+        author: "Dev Team",
+        date: "Sep 11, 2026",
+        readTime: "5 min read",
+    },
+    {
+        id: "3",
         slug: "how-local-image-compression-speeds-up-seo",
         title: "How Local Image Compression Speeds Up Your Website SEO",
         excerpt:
@@ -37,10 +60,9 @@ const POSTS: BlogPost[] = [
         author: "Dev Team",
         date: "Sep 04, 2026",
         readTime: "4 min read",
-        featured: true,
     },
     {
-        id: "2",
+        id: "4",
         slug: "understanding-pdf-compression",
         title: "Understanding PDF Compression: Lossless vs Lossy Settings",
         excerpt:
@@ -51,7 +73,7 @@ const POSTS: BlogPost[] = [
         readTime: "6 min read",
     },
     {
-        id: "3",
+        id: "5",
         slug: "why-in-browser-file-processing-means-100-percent-privacy",
         title: "Why In-Browser File Processing Means 100% Privacy",
         excerpt:
@@ -108,8 +130,8 @@ export default function BlogPage() {
                                 type="button"
                                 onClick={() => setSelectedCategory(cat)}
                                 className={`rounded-xl px-4 py-2 text-xs font-bold transition shrink-0 ${selectedCategory === cat
-                                        ? "bg-blue-600 text-white shadow-sm"
-                                        : "bg-slate-100/80 text-slate-600 hover:bg-slate-200/60"
+                                    ? "bg-blue-600 text-white shadow-sm"
+                                    : "bg-slate-100/80 text-slate-600 hover:bg-slate-200/60"
                                     }`}
                             >
                                 {cat}
