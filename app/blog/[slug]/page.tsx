@@ -24,6 +24,15 @@ export default function BlogPostPage({
             content: string;
         }
     > = {
+        "how-to-resize-images-without-losing-quality": {
+            title: "How to Resize Images Without Losing Quality (Fast & Free)",
+            category: "Image Optimization",
+            date: "Sep 11, 2026",
+            readTime: "4 min read",
+            author: "Dev Team",
+            content:
+                "Large image file sizes slow down website loading speeds and waste bandwidth. Learn how to crop, adjust dimensions, and convert images into WebP/PNG formats directly in your browser using local HTML5 canvas processing. Zero server uploads, instant export, and 100% privacy guaranteed.",
+        },
         "how-local-image-compression-speeds-up-seo": {
             title: "How Local Image Compression Speeds Up Your Website SEO",
             category: "Optimization",
@@ -105,6 +114,25 @@ export default function BlogPostPage({
                     <p>
                         Client-side processing guarantees that no third-party server intercepts your confidential data. With local browser APIs, performance scales with your machine's hardware capabilities rather than waiting for remote cloud queue servers.
                     </p>
+
+                    {/* CTA Box linking directly to the Image Resizer Tool */}
+                    {slug === "how-to-resize-images-without-losing-quality" && (
+                        <div className="mt-6 rounded-2xl bg-blue-50/60 border border-blue-100 p-6 space-y-3">
+                            <h3 className="font-bold text-slate-900 text-base">
+                                Need to Resize an Image Right Now?
+                            </h3>
+                            <p className="text-xs text-slate-600">
+                                Use our 100% free, browser-native Image Resizer tool. Zero uploads required.
+                            </p>
+                            <Link
+                                href="/tools/image-resizer"
+                                className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-xs font-bold text-white shadow-md hover:bg-blue-700 transition"
+                            >
+                                <span>Try Free Image Resizer Tool</span>
+                                <span>→</span>
+                            </Link>
+                        </div>
+                    )}
                 </div>
 
                 <div className="pt-6 border-t border-slate-100 flex items-center justify-between">
