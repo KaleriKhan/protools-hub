@@ -1,36 +1,23 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🛠️ ProTools Hub - Free & Secure Web Utilities
 
-## Getting Started
+**ProTools Hub** is a suite of 100% free, fast, and privacy-focused web tools designed for developers, digital creators, and daily web users. All tools run client-side inside the browser — your data is never uploaded to any server.
 
-First, run the development server:
+🚀 **Live Site**: [protools-hub-9k1g.vercel.app](https://protools-hub-9k1g.vercel.app)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+---
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 🧰 Included Tools (13 Browser Utilities)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- 📝 **[Text Summarizer](https://protools-hub-9k1g.vercel.app/tools/text-summarizer)** - Summarize long articles instantly.
+- 🔠 **[Base64 Encoder/Decoder](https://protools-hub-9k1g.vercel.app/tools/base64-encoder)** - Convert text/data safely.
+- 🖼️ **[Image Resizer](https://protools-hub-9k1g.vercel.app/tools/image-resizer)** - Resize and optimize images locally.
+- 📊 **[JSON Formatter & Validator](https://protools-hub-9k1g.vercel.app/tools/json-formatter)** - Format and beautify JSON code.
+- 🔤 **[Word Counter](https://protools-hub-9k1g.vercel.app/tools/word-counter)** - Count words, characters, and reading time.
+- 📄 **[PDF to Word Converter](https://protools-hub-9k1g.vercel.app/tools/pdf-to-word)** - Convert documents securely in-browser.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### ⚡ Tech Stack
+- **Framework**: Next.js / React
+- **Styling**: Tailwind CSS
+- **Deployment**: Vercel
