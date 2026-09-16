@@ -18,25 +18,27 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL("https://protools-hub-9k1g.vercel.app"),
   title: {
-    default: "ProTools Hub — Free Online Utilities & Developer Toolkit",
+    default: "ProTools Hub — 100% Free & Private Online Utilities Toolkit",
     template: "%s | ProTools Hub",
   },
   description:
-    "Fast, secure, and client-side web tools for image processing, text utilities, PDF conversion, and developer tools. 100% free and browser-native.",
+    "Fast, secure, and 100% client-side web tools for image processing, text utilities, JSON formatting, Base64 encoding, and developer tools with zero server data storage.",
   keywords: [
     "free online tools",
     "developer utilities",
-    "json formatter",
-    "word counter",
-    "image resizer",
-    "pdf tools",
-    "base64 encoder",
+    "json formatter online",
+    "word counter tool",
+    "image resizer free",
+    "text summarizer",
+    "base64 encoder decoder",
+    "lorem ipsum generator",
+    "private browser tools",
   ],
   alternates: {
     canonical: "/",
   },
   openGraph: {
-    title: "ProTools Hub — Free Online Utilities & Developer Toolkit",
+    title: "ProTools Hub — 100% Free & Private Online Utilities Toolkit",
     description:
       "Fast, secure, and browser-native web utilities for developers, students, and professionals.",
     url: "https://protools-hub-9k1g.vercel.app",
@@ -46,7 +48,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "ProTools Hub — Free Online Utilities & Developer Toolkit",
+    title: "ProTools Hub — 100% Free & Private Online Utilities Toolkit",
     description:
       "100% free, secure, and client-side web tools for everyday tasks.",
   },
