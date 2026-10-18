@@ -12,19 +12,24 @@ export default function Footer() {
     }, []);
 
     return (
-        <footer className="border-t border-slate-200 bg-slate-900 text-slate-300">
+        <footer className="border-t border-slate-800 bg-slate-900 text-slate-300">
             <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
 
                     {/* Brand & About */}
                     <div className="space-y-4 md:col-span-1">
-                        <Link href="/" className="flex items-center gap-2">
-                            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 text-white">
+                        <Link href="/" className="flex items-center gap-2.5 group">
+                            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/20 group-hover:scale-105 transition-transform duration-300">
                                 <Wrench className="h-4 w-4" />
                             </div>
-                            <span className="text-xl font-bold tracking-tight text-white">
-                                ProTools<span className="text-blue-500">Hub</span>
-                            </span>
+                            <div className="flex flex-col">
+                                <span className="text-xl font-extrabold tracking-tight text-white flex items-center gap-0.5">
+                                    ProTools<span className="text-blue-500">Hub</span>
+                                </span>
+                                <span className="text-[10px] font-semibold text-slate-400 -mt-1 tracking-wider uppercase">
+                                    Developer Toolkit
+                                </span>
+                            </div>
                         </Link>
                         <p className="text-xs text-slate-400 leading-relaxed">
                             Fast, free, and secure client-side tools designed for developers, designers, creators, and everyday productivity.
@@ -43,7 +48,7 @@ export default function Footer() {
                                 </Link>
                             </li>
                             <li>
-                                <Link href="/categories" className="hover:text-white transition">
+                                <Link href="/tools" className="hover:text-white transition">
                                     All Tools
                                 </Link>
                             </li>

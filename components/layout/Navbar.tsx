@@ -1,15 +1,16 @@
+
+
+
 "use client";
 
 import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Wrench, Menu, X, Sparkles } from "lucide-react";
-
+import { Menu, X, Sparkles, Wrench } from "lucide-react";
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
 
-  // Har route unique hai taake double blue tab issue na aaye
   const navLinks = [
     { name: "Home", href: "/" },
     { name: "All Tools", href: "/tools" },
@@ -22,17 +23,17 @@ export default function Header() {
     <header className="sticky top-0 z-50 w-full border-b border-slate-200/80 bg-white/80 backdrop-blur-md transition-all">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3.5 sm:px-6 lg:px-8">
 
-        {/* Brand Logo */}
+        {/* Brand Logo Image */}
         <Link href="/" className="flex items-center gap-2.5 group">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white shadow-md shadow-blue-500/20 group-hover:scale-105 transition-transform">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/20 group-hover:scale-105 transition-transform duration-300">
             <Wrench className="h-5 w-5" />
           </div>
           <div className="flex flex-col">
-            <span className="text-xl font-bold tracking-tight text-slate-900 flex items-center gap-1">
+            <span className="text-xl font-extrabold tracking-tight text-slate-900 flex items-center gap-0.5">
               ProTools<span className="text-blue-600">Hub</span>
             </span>
-            <span className="text-[10px] font-medium text-slate-500 -mt-1 tracking-wider uppercase">
-              Free Online Toolkit
+            <span className="text-[10px] font-semibold text-slate-400 -mt-1 tracking-wider uppercase">
+              Developer Toolkit
             </span>
           </div>
         </Link>
@@ -46,8 +47,8 @@ export default function Header() {
                 key={link.name}
                 href={link.href}
                 className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${isActive
-                    ? "text-blue-600 bg-blue-50/80"
-                    : "text-slate-600 hover:text-slate-900 hover:bg-slate-100/60"
+                  ? "text-blue-600 bg-blue-50/80"
+                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-100/60"
                   }`}
               >
                 {link.name}

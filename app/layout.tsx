@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import Script from "next/script";
 import "./globals.css";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
@@ -16,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://protools-hub-9k1g.vercel.app"),
+  metadataBase: new URL("https://myprotoolshub.com"),
   title: {
     default: "ProTools Hub — 100% Free & Private Online Utilities Toolkit",
     template: "%s | ProTools Hub",
@@ -41,7 +40,7 @@ export const metadata: Metadata = {
     title: "ProTools Hub — 100% Free & Private Online Utilities Toolkit",
     description:
       "Fast, secure, and browser-native web utilities for developers, students, and professionals.",
-    url: "https://protools-hub-9k1g.vercel.app",
+    url: "https://myprotoolshub.com",
     siteName: "ProTools Hub",
     type: "website",
     locale: "en_US",
@@ -62,38 +61,20 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "WebApplication",
-    name: "ProTools Hub",
-    url: "https://protools-hub-9k1g.vercel.app",
-    applicationCategory: "DeveloperApplication",
-    operatingSystem: "All",
-    offers: {
-      "@type": "Offer",
-      price: "0",
-      priceCurrency: "USD",
-    },
-    description:
-      "Free browser-native developer utilities, image resizers, text tools, and converters.",
-  };
-
   return (
     <html
       lang="en"
+      suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <head>
-        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7165952973628019"
-          crossOrigin="anonymous"></script>
-
-        {/* Structured Data (Schema Markup) */}
         <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-        />
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7165952973628019"
+          crossOrigin="anonymous"
+        ></script>
       </head>
-      <body className="min-h-full bg-slate-50 text-slate-900">
+      <body className="min-h-full bg-slate-50 text-slate-900" suppressHydrationWarning>
         <div className="flex min-h-screen flex-col">
           <Navbar />
 

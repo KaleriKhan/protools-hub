@@ -48,18 +48,18 @@ export default function FeaturedTools() {
   };
 
   return (
-    <section id="featured-tools" className="py-20 bg-slate-50/50">
+    <section id="featured-tools" className="py-24 bg-gradient-to-b from-white via-slate-50/50 to-white">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 
         {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-14">
-          <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-blue-600 bg-blue-100/60 px-3 py-1 rounded-full mb-3">
+        <div className="text-center max-w-3xl mx-auto mb-16">
+          <span className="inline-flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-wider text-blue-600 bg-blue-50 border border-blue-200/80 px-3.5 py-1.5 rounded-full mb-4 shadow-sm">
             Powerful Utilities
           </span>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-slate-900 tracking-tight">
             Explore Our Free Online Tools
           </h2>
-          <p className="mt-3 text-slate-600 text-base sm:text-lg">
+          <p className="mt-4 text-slate-600 text-base sm:text-lg leading-relaxed">
             Choose a utility below to start converting, compressing, formatting, or generating instantly.
           </p>
         </div>
@@ -70,15 +70,15 @@ export default function FeaturedTools() {
             <Link
               key={tool.id}
               href={`/tools/${tool.slug}`}
-              className="group relative flex flex-col justify-between rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm hover:border-blue-500/50 hover:shadow-xl hover:shadow-blue-500/5 hover:-translate-y-1 transition-all duration-200"
+              className="group relative flex flex-col justify-between rounded-3xl border border-slate-200/80 bg-white p-7 shadow-sm hover:border-blue-500/50 hover:shadow-xl hover:shadow-blue-500/5 hover:-translate-y-1.5 transition-all duration-300"
             >
               <div>
                 {/* Header: Icon & Category */}
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-slate-50 border border-slate-100 group-hover:bg-blue-50 group-hover:border-blue-100 transition-colors">
+                <div className="flex items-center justify-between mb-5">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-50 border border-slate-100 group-hover:bg-blue-50 group-hover:border-blue-100 group-hover:scale-110 transition-all duration-300 shadow-sm">
                     {getToolIcon(tool.slug)}
                   </div>
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 bg-slate-100 px-2.5 py-1 rounded-md group-hover:bg-blue-100/60 group-hover:text-blue-700 transition-colors">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 bg-slate-100 px-3 py-1 rounded-lg group-hover:bg-blue-50 group-hover:text-blue-700 transition-colors">
                     {tool.category}
                   </span>
                 </div>
@@ -87,15 +87,15 @@ export default function FeaturedTools() {
                 <h3 className="text-lg font-bold text-slate-900 group-hover:text-blue-600 transition-colors">
                   {tool.name}
                 </h3>
-                <p className="mt-2 text-sm text-slate-600 leading-relaxed line-clamp-2">
+                <p className="mt-2.5 text-sm text-slate-600 leading-relaxed line-clamp-2">
                   {tool.description}
                 </p>
               </div>
 
               {/* Card Footer Action */}
-              <div className="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-blue-600">
+              <div className="mt-8 pt-4 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-blue-600">
                 <span>Use Tool Now</span>
-                <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                <ArrowRight className="h-4 w-4 group-hover:translate-x-1.5 transition-transform duration-300" />
               </div>
             </Link>
           ))}

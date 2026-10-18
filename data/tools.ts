@@ -111,4 +111,28 @@ export const tools = [
             "Convert text to Base64 format or decode Base64 strings safely in your browser.",
         featured: true,
     },
+    {
+        id: 14,
+        slug: "glassmorphism-generator",
+        name: "CSS Glassmorphism Generator",
+        description: "Create custom frosted glass UI effects with live preview and CSS code generation.",
+        category: "Developer",
+        featured: true,
+    },
+    {
+        id: 15,
+        slug: "background-remover",
+        name: "AI Background Remover",
+        category: "Image",
+        description: "Remove image backgrounds instantly with high-precision AI edge detection.",
+        featured: true,
+    },
+    {
+        id: 16,
+        slug: "image-upscaler",
+        name: "AI Image Upscaler & Enhancer",
+        category: "Image",
+        description: "Upscale low-resolution photos up to 4x/8x using deep learning super-resolution AI.",
+        featured: true,
+    }
 ];

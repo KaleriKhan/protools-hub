@@ -1,9 +1,64 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ShieldCheck, Lock, ArrowLeft } from "lucide-react";
 
+export const metadata: Metadata = {
+    title: "Privacy Policy - ProTools Hub",
+    description: "Read the Privacy Policy of ProTools Hub. Learn how we ensure 100% client-side security and protect your data with zero server uploads.",
+    keywords: [
+        "privacy policy",
+        "data security",
+        "client side processing",
+        "protools hub privacy"
+    ],
+    authors: [{ name: "ProTools Hub" }],
+    creator: "ProTools Hub",
+    publisher: "ProTools Hub",
+    metadataBase: new URL("https://myprotoolshub.com"),
+    alternates: {
+        canonical: "/privacy",
+    },
+    openGraph: {
+        title: "Privacy Policy | ProTools Hub",
+        description: "Learn how ProTools Hub protects your privacy with zero server file processing.",
+        url: "https://myprotoolshub.com/privacy",
+        siteName: "ProTools Hub",
+        locale: "en_US",
+        type: "website",
+    },
+    twitter: {
+        card: "summary_large_image",
+        title: "Privacy Policy | ProTools Hub",
+        description: "Learn how ProTools Hub protects your privacy and data security.",
+    },
+    robots: {
+        index: true,
+        follow: true,
+        googleBot: {
+            index: true,
+            follow: true,
+            "max-video-preview": -1,
+            "max-image-preview": "large",
+            "max-snippet": -1,
+        },
+    },
+};
+
 export default function PrivacyPolicyPage() {
+    const schemaData = {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "name": "Privacy Policy",
+        "url": "https://myprotoolshub.com/privacy",
+        "description": "Privacy Policy and data security details for ProTools Hub."
+    };
+
     return (
         <main className="min-h-screen bg-slate-50/50 py-12 px-4 sm:px-6 lg:px-8">
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaData) }}
+            />
             <div className="mx-auto max-w-3xl space-y-8 bg-white p-6 sm:p-10 rounded-3xl border border-slate-200/80 shadow-sm text-slate-700">
 
                 <Link
@@ -22,7 +77,7 @@ export default function PrivacyPolicyPage() {
                     <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
                         Privacy Policy
                     </h1>
-                    <p className="text-xs text-slate-400">Last updated: September 2026</p>
+                    <p className="text-xs text-slate-400">Last updated: October 2026</p>
                 </div>
 
                 <div className="space-y-6 text-sm leading-relaxed">

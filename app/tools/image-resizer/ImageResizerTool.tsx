@@ -266,15 +266,15 @@ export default function ImageResizer() {
                 </div>
 
                 {/* About Tool Card */}
-                <div className="rounded-3xl border border-slate-200/80 bg-white p-6 md:p-8 shadow-sm space-y-2">
-                    <div className="flex items-center gap-3 mb-2">
-                        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
-                            <BookOpen className="h-4 w-4" />
+                <div className="rounded-3xl border border-slate-200/80 bg-white p-6 md:p-8 shadow-sm space-y-3">
+                    <div className="flex items-center gap-3">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-600 border border-blue-100">
+                            <HelpCircle className="h-5 w-5" />
                         </div>
-                        <h2 className="text-lg font-bold text-slate-900">About Image Resizer</h2>
+                        <h3 className="text-lg font-bold text-slate-900">About Image Resizer</h3>
                     </div>
-                    <p className="text-xs md:text-sm text-slate-500 leading-relaxed">
-                        Resize images and adjust dimensions without losing quality. Fast, secure, and browser-processed utility designed for seamless everyday productivity without registration.
+                    <p className="text-xs md:text-sm text-slate-600 leading-relaxed">
+                        Resize images and adjust dimensions without losing quality. Fast, secure, and browser-processed utility designed for seamless everyday productivity without registration or server uploads.
                     </p>
                 </div>
 
@@ -283,52 +283,52 @@ export default function ImageResizer() {
 
                     {/* How to Use */}
                     <div className="rounded-3xl border border-slate-200/80 bg-white p-6 md:p-8 shadow-sm space-y-4">
-                        <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
-                            <Zap className="h-4 w-4 text-amber-500" />
-                            <h3 className="text-sm font-bold text-slate-900">How to Use</h3>
+                        <div className="flex items-center gap-3">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-50 text-amber-600 border border-amber-100">
+                                <Zap className="h-5 w-5" />
+                            </div>
+                            <h3 className="text-base font-bold text-slate-900">How to Use</h3>
                         </div>
                         <ul className="space-y-3 text-xs text-slate-600">
-                            <li className="flex items-start gap-3">
-                                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-100 text-[10px] font-bold text-blue-600">1</span>
-                                <span>Input or select your target file / text.</span>
+                            <li className="flex items-start gap-2.5">
+                                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-slate-100 font-bold text-slate-700 text-[10px]">1</span>
+                                <span>Upload or drag & drop your image file into the browser box.</span>
                             </li>
-                            <li className="flex items-start gap-3">
-                                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-100 text-[10px] font-bold text-blue-600">2</span>
-                                <span>Adjust tool parameters or options if available.</span>
+                            <li className="flex items-start gap-2.5">
+                                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-slate-100 font-bold text-slate-700 text-[10px]">2</span>
+                                <span>Specify custom width, height, and choose your preferred output format.</span>
                             </li>
-                            <li className="flex items-start gap-3">
-                                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-100 text-[10px] font-bold text-blue-600">3</span>
-                                <span>Click the action button to process.</span>
-                            </li>
-                            <li className="flex items-start gap-3">
-                                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-100 text-[10px] font-bold text-blue-600">4</span>
-                                <span>Download or copy your final output instantly.</span>
+                            <li className="flex items-start gap-2.5">
+                                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-slate-100 font-bold text-slate-700 text-[10px]">3</span>
+                                <span>Click &quot;Resize Image Now&quot; and download your output instantly.</span>
                             </li>
                         </ul>
                     </div>
 
                     {/* Key Advantages */}
                     <div className="rounded-3xl border border-slate-200/80 bg-white p-6 md:p-8 shadow-sm space-y-4">
-                        <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
-                            <Layers className="h-4 w-4 text-blue-500" />
-                            <h3 className="text-sm font-bold text-slate-900">Key Advantages</h3>
+                        <div className="flex items-center gap-3">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-100">
+                                <ShieldCheck className="h-5 w-5" />
+                            </div>
+                            <h3 className="text-base font-bold text-slate-900">Key Advantages</h3>
                         </div>
-                        <ul className="space-y-3 text-xs text-slate-600">
-                            <li className="flex items-center gap-2.5">
+                        <ul className="space-y-2.5 text-xs text-slate-600">
+                            <li className="flex items-center gap-2">
                                 <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
-                                <span>100% Client-Side privacy assurance</span>
+                                <span>100% free with no registration or limits</span>
                             </li>
-                            <li className="flex items-center gap-2.5">
+                            <li className="flex items-center gap-2">
                                 <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
-                                <span>No file size limits or hidden charges</span>
+                                <span>Maintain aspect ratio option for proportional scaling</span>
                             </li>
-                            <li className="flex items-center gap-2.5">
+                            <li className="flex items-center gap-2">
                                 <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
-                                <span>Optimized for desktop and mobile devices</span>
+                                <span>Zero cloud uploads, guaranteeing maximum privacy</span>
                             </li>
-                            <li className="flex items-center gap-2.5">
+                            <li className="flex items-center gap-2">
                                 <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
-                                <span>Instant response without queue waiting times</span>
+                                <span>Lightning-fast client-side HTML5 Canvas execution</span>
                             </li>
                         </ul>
                     </div>
