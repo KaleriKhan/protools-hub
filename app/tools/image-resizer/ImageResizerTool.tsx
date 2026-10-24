@@ -85,10 +85,10 @@ export default function ImageResizer() {
                         <span>Image Utility</span>
                     </div>
                     <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-slate-900">
-                        Image Resizer
+                        Simple Image Resizer & Tool
                     </h1>
                     <p className="text-slate-500 text-sm md:text-base">
-                        Resize images and adjust dimensions without losing quality.
+                        Resize images and adjust dimensions instantly using our simple image resizer tool.
                     </p>
                 </div>
 
@@ -129,7 +129,7 @@ export default function ImageResizer() {
                                         Select an image from your device to compress, resize, or convert formats securely.
                                     </p>
                                 </div>
-                                <button type="button" className="mt-2 inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-xs font-bold text-white shadow-md hover:bg-blue-700 transition">
+                                <button type="button" className="mt-2 inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-xs font-bold text-white shadow-md hover:bg-blue-700 transition cursor-pointer">
                                     <Upload className="h-4 w-4" />
                                     <span>Choose Image File</span>
                                 </button>
@@ -168,7 +168,7 @@ export default function ImageResizer() {
                                     id="aspect"
                                     checked={keepAspectRatio}
                                     onChange={(e) => setKeepAspectRatio(e.target.checked)}
-                                    className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                                    className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
                                 />
                                 <label htmlFor="aspect" className="text-xs font-semibold text-slate-600 cursor-pointer">
                                     Maintain aspect ratio
@@ -181,7 +181,7 @@ export default function ImageResizer() {
                                     <select
                                         value={format}
                                         onChange={(e) => setFormat(e.target.value)}
-                                        className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-900 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition"
+                                        className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-900 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition cursor-pointer"
                                     >
                                         <option value="image/png">PNG</option>
                                         <option value="image/jpeg">JPEG</option>
@@ -198,7 +198,7 @@ export default function ImageResizer() {
                                             step="0.1"
                                             value={quality}
                                             onChange={(e) => setQuality(Number(e.target.value))}
-                                            className="w-full mt-2 accent-blue-600"
+                                            className="w-full mt-2 accent-blue-600 cursor-pointer"
                                         />
                                     </div>
                                 )}
@@ -207,13 +207,13 @@ export default function ImageResizer() {
                             <div className="flex gap-3">
                                 <button
                                     onClick={processResize}
-                                    className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 py-3 text-xs font-bold text-white shadow-md hover:bg-blue-700 transition"
+                                    className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 py-3 text-xs font-bold text-white shadow-md hover:bg-blue-700 transition cursor-pointer"
                                 >
                                     Resize Image Now
                                 </button>
                                 <button
                                     onClick={() => setImageSrc(null)}
-                                    className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs font-bold text-slate-600 hover:bg-slate-100 transition"
+                                    className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs font-bold text-slate-600 hover:bg-slate-100 transition cursor-pointer"
                                 >
                                     Change Image
                                 </button>
@@ -271,10 +271,10 @@ export default function ImageResizer() {
                         <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-600 border border-blue-100">
                             <HelpCircle className="h-5 w-5" />
                         </div>
-                        <h3 className="text-lg font-bold text-slate-900">About Image Resizer</h3>
+                        <h3 className="text-lg font-bold text-slate-900">About Simple Image Resizer & Tool</h3>
                     </div>
                     <p className="text-xs md:text-sm text-slate-600 leading-relaxed">
-                        Resize images and adjust dimensions without losing quality. Fast, secure, and browser-processed utility designed for seamless everyday productivity without registration or server uploads.
+                        Our free online simple image resizer tool helps you resize images and adjust dimensions without losing quality. Fast, secure, and browser-processed utility designed for seamless everyday productivity without registration or server uploads.
                     </p>
                 </div>
 

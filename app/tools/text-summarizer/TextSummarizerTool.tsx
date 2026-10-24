@@ -10,7 +10,8 @@ import {
     Layers,
     ShieldCheck,
     BookOpen,
-    CheckCircle2
+    CheckCircle2,
+    Trash2
 } from "lucide-react";
 
 export default function TextSummarizer() {
@@ -19,6 +20,10 @@ export default function TextSummarizer() {
     const [mode, setMode] = useState<"summarize" | "paraphrase">("summarize");
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [copied, setCopied] = useState<boolean>(false);
+
+    // Word and Character counters
+    const wordCount = text.trim() ? text.trim().split(/\s+/).length : 0;
+    const charCount = text.length;
 
     const handleProcess = () => {
         if (!text.trim()) return;
@@ -65,6 +70,11 @@ export default function TextSummarizer() {
         setTimeout(() => setCopied(false), 2000);
     };
 
+    const handleClear = () => {
+        setText("");
+        setSummary("");
+    };
+
     return (
         <main className="min-h-screen bg-slate-50/50 py-12 px-4 sm:px-6 lg:px-8">
             <div className="mx-auto max-w-5xl space-y-8">
@@ -76,27 +86,47 @@ export default function TextSummarizer() {
                         <span>Text Utility</span>
                     </div>
                     <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-slate-900">
-                        Text Summarizer
+                        Text Summarizer & Paraphraser
                     </h1>
                     <p className="text-slate-500 text-sm md:text-base">
-                        Summarize articles and rewrite long content instantly.
+                        Summarize articles, summarize sentences, and rewrite long content instantly.
                     </p>
                 </div>
 
                 {/* Main Tool Container Card */}
                 <div className="rounded-3xl border border-slate-200/80 bg-white p-6 md:p-10 shadow-sm space-y-6">
 
-                    <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-600 border border-blue-100">
-                            <FileText className="h-5 w-5" />
+                    <div className="flex items-center justify-between flex-wrap gap-4">
+                        <div className="flex items-center gap-3">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-600 border border-blue-100">
+                                <FileText className="h-5 w-5" />
+                            </div>
+                            <div>
+                                <h2 className="text-lg font-bold text-slate-900">
+                                    Smart Text Summarizer & Paraphraser
+                                </h2>
+                                <p className="text-xs text-slate-500">
+                                    Summarize, edit, and paraphrase text content locally without server API limits.
+                                </p>
+                            </div>
                         </div>
-                        <div>
-                            <h2 className="text-lg font-bold text-slate-900">
-                                Smart Text Summarizer & Paraphraser
-                            </h2>
-                            <p className="text-xs text-slate-500">
-                                Summarize, edit, and paraphrase text content locally without server API limits.
-                            </p>
+
+                        {/* Word & Character Counters + Clear Button */}
+                        <div className="flex items-center gap-4">
+                            <div className="text-xs font-semibold text-slate-500 flex gap-3">
+                                <span>Words: <b className="text-slate-900">{wordCount}</b></span>
+                                <span>Chars: <b className="text-slate-900">{charCount}</b></span>
+                            </div>
+                            {text && (
+                                <button
+                                    type="button"
+                                    onClick={handleClear}
+                                    className="inline-flex items-center gap-1.5 text-xs font-bold text-rose-500 hover:text-rose-600 bg-rose-50 px-3 py-1.5 rounded-xl border border-rose-100 transition cursor-pointer"
+                                >
+                                    <Trash2 className="h-3.5 w-3.5" />
+                                    <span>Clear</span>
+                                </button>
+                            )}
                         </div>
                     </div>
 
@@ -105,7 +135,7 @@ export default function TextSummarizer() {
                         <button
                             type="button"
                             onClick={() => setMode("summarize")}
-                            className={`flex-1 py-2 text-xs font-bold rounded-xl transition ${mode === "summarize"
+                            className={`flex-1 py-2 text-xs font-bold rounded-xl transition cursor-pointer ${mode === "summarize"
                                 ? "bg-white text-blue-600 shadow-sm"
                                 : "text-slate-600 hover:text-slate-900"
                                 }`}
@@ -115,7 +145,7 @@ export default function TextSummarizer() {
                         <button
                             type="button"
                             onClick={() => setMode("paraphrase")}
-                            className={`flex-1 py-2 text-xs font-bold rounded-xl transition ${mode === "paraphrase"
+                            className={`flex-1 py-2 text-xs font-bold rounded-xl transition cursor-pointer ${mode === "paraphrase"
                                 ? "bg-white text-blue-600 shadow-sm"
                                 : "text-slate-600 hover:text-slate-900"
                                 }`}
@@ -138,7 +168,7 @@ export default function TextSummarizer() {
                     <button
                         onClick={handleProcess}
                         disabled={isLoading || !text.trim()}
-                        className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 py-3 text-xs font-bold text-white shadow-md hover:bg-blue-700 disabled:bg-slate-200 transition"
+                        className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 py-3 text-xs font-bold text-white shadow-md hover:bg-blue-700 disabled:bg-slate-200 transition cursor-pointer"
                     >
                         <Sparkles className="h-4 w-4" />
                         <span>{isLoading ? "Processing Text..." : mode === "summarize" ? "Summarize Text Now" : "Paraphrase Text Now"}</span>
@@ -152,7 +182,7 @@ export default function TextSummarizer() {
                                 <button
                                     type="button"
                                     onClick={handleCopy}
-                                    className="inline-flex items-center gap-1.5 text-xs font-bold text-blue-600 hover:text-blue-700 transition"
+                                    className="inline-flex items-center gap-1.5 text-xs font-bold text-blue-600 hover:text-blue-700 transition cursor-pointer"
                                 >
                                     {copied ? <Check className="h-3.5 w-3.5 text-emerald-600" /> : <Copy className="h-3.5 w-3.5" />}
                                     <span>{copied ? "Copied!" : "Copy Result"}</span>
@@ -198,10 +228,10 @@ export default function TextSummarizer() {
                         <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
                             <BookOpen className="h-4 w-4" />
                         </div>
-                        <h2 className="text-lg font-bold text-slate-900">About Text Summarizer</h2>
+                        <h2 className="text-lg font-bold text-slate-900">About Text Summarizer & Paraphrasing Tool</h2>
                     </div>
                     <p className="text-xs md:text-sm text-slate-500 leading-relaxed">
-                        Summarize text without losing key information. Fast, secure, and browser-processed utility designed for seamless everyday productivity without registration.
+                        Our free online text summarizer and paraphrasing tool helps you instantly shorten long articles, research papers, or summarize sentences directly inside your browser with complete privacy. No data is stored on external servers, ensuring lightning-fast performance and secure processing.
                     </p>
                 </div>
 
