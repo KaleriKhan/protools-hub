@@ -1,12 +1,10 @@
-
-
-
 "use client";
 
 import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, X, Sparkles, Wrench } from "lucide-react";
+
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
@@ -20,11 +18,11 @@ export default function Header() {
   ];
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-slate-200/80 bg-white/80 backdrop-blur-md transition-all">
+    <header className="sticky top-0 z-50 w-full border-b border-slate-200/80 bg-white/90 backdrop-blur-md transition-all">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3.5 sm:px-6 lg:px-8">
 
         {/* Brand Logo Image */}
-        <Link href="/" className="flex items-center gap-2.5 group">
+        <Link href="/" className="flex items-center gap-2.5 group" aria-label="ProTools Hub Home">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/20 group-hover:scale-105 transition-transform duration-300">
             <Wrench className="h-5 w-5" />
           </div>
@@ -32,14 +30,14 @@ export default function Header() {
             <span className="text-xl font-extrabold tracking-tight text-slate-900 flex items-center gap-0.5">
               ProTools<span className="text-blue-600">Hub</span>
             </span>
-            <span className="text-[10px] font-semibold text-slate-400 -mt-1 tracking-wider uppercase">
+            <span className="text-[10px] font-bold text-slate-500 -mt-1 tracking-wider uppercase">
               Developer Toolkit
             </span>
           </div>
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-1">
+        <nav className="hidden md:flex items-center gap-1" aria-label="Main Navigation">
           {navLinks.map((link) => {
             const isActive = pathname === link.href;
             return (
@@ -47,8 +45,8 @@ export default function Header() {
                 key={link.name}
                 href={link.href}
                 className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${isActive
-                  ? "text-blue-600 bg-blue-50/80"
-                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-100/60"
+                    ? "text-blue-600 bg-blue-50/80"
+                    : "text-slate-700 hover:text-slate-900 hover:bg-slate-100/60"
                   }`}
               >
                 {link.name}
@@ -68,11 +66,13 @@ export default function Header() {
           </Link>
         </div>
 
-        {/* Mobile Menu Button */}
+        {/* Mobile Menu Button with WCAG aria attributes */}
         <button
           type="button"
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="md:hidden p-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-100"
+          aria-expanded={mobileMenuOpen}
+          aria-label={mobileMenuOpen ? "Close main menu" : "Open main menu"}
+          className="md:hidden p-2 rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer"
         >
           {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
         </button>
@@ -80,13 +80,13 @@ export default function Header() {
 
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-b border-slate-200 bg-white px-4 pt-2 pb-6 space-y-2">
+        <div className="md:hidden border-b border-slate-200 bg-white px-4 pt-2 pb-6 space-y-2" aria-label="Mobile Navigation">
           {navLinks.map((link) => (
             <Link
               key={link.name}
               href={link.href}
               onClick={() => setMobileMenuOpen(false)}
-              className="block rounded-lg px-3 py-2.5 text-base font-semibold text-slate-700 hover:bg-slate-50"
+              className="block rounded-lg px-3 py-2.5 text-base font-semibold text-slate-800 hover:bg-slate-50"
             >
               {link.name}
             </Link>
@@ -95,7 +95,7 @@ export default function Header() {
             <Link
               href="/tools"
               onClick={() => setMobileMenuOpen(false)}
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 py-3 text-sm font-semibold text-white"
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 py-3 text-sm font-semibold text-white shadow-md"
             >
               <Sparkles className="h-4 w-4 text-amber-300" />
               Explore All Tools

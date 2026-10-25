@@ -153,7 +153,7 @@ export default function PDFToWord() {
     };
 
     /* ==========================================================================
-       Render PDF Page For OCR (Optimized Scale 2 for Speed)
+       Render PDF Page For OCR
        ========================================================================== */
 
     const renderPageToImage = async (
@@ -417,42 +417,52 @@ export default function PDFToWord() {
                         </div>
                         <div>
                             <h3 className="text-xl font-bold text-slate-900">PDF to Word Converter</h3>
-                            <p className="text-xs text-slate-500">Convert normal and scanned PDF files into editable Word documents.</p>
+                            <p className="text-xs text-slate-600">Convert normal and scanned PDF files into editable Word documents.</p>
                         </div>
                     </div>
                 </div>
 
                 {/* Error Message */}
                 {error && !file && (
-                    <div className="mb-6 flex items-center gap-3 rounded-2xl bg-rose-50 border border-rose-200 p-4 text-xs font-medium text-rose-700">
-                        <AlertCircle className="h-5 w-5 text-rose-500 shrink-0" />
+                    <div className="mb-6 flex items-center gap-3 rounded-2xl bg-rose-50 border border-rose-200 p-4 text-xs font-semibold text-rose-800" role="alert">
+                        <AlertCircle className="h-5 w-5 text-rose-600 shrink-0" />
                         <span>{error}</span>
                     </div>
                 )}
 
                 {/* Upload Zone */}
                 {!file ? (
-                    <div className="rounded-3xl border-2 border-dashed border-slate-200 bg-slate-50/50 p-10 text-center hover:border-blue-400 hover:bg-blue-50/20 transition">
+                    <div className="rounded-3xl border-2 border-dashed border-slate-300 bg-slate-50/50 p-10 text-center hover:border-blue-500 hover:bg-blue-50/20 transition">
                         <div className="flex flex-col items-center">
                             <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white shadow-md border border-slate-100 text-blue-600 mb-4">
                                 <Upload className="h-8 w-8" />
                             </div>
                             <h3 className="text-lg font-bold text-slate-900">Upload your PDF File</h3>
-                            <p className="text-xs text-slate-500 mt-1 max-w-md">
+                            <p className="text-xs text-slate-600 mt-1 max-w-md">
                                 Normal PDFs and scanned documents containing English and Urdu text are supported automatically.
                             </p>
-                            <span className="text-[11px] text-slate-400 mt-1">Maximum file size: 100 MB</span>
+                            <span className="text-[11px] text-slate-500 mt-1 font-medium">Maximum file size: 100 MB</span>
 
-                            <label className="mt-6 inline-flex items-center gap-2 cursor-pointer rounded-xl bg-blue-600 px-6 py-3 text-xs font-bold text-white shadow-md shadow-blue-500/20 hover:bg-blue-700 transition">
+                            {/* Hidden File Input */}
+                            <input
+                                id="pdf-file-input"
+                                type="file"
+                                accept=".pdf,application/pdf"
+                                onChange={handleFileChange}
+                                className="hidden"
+                                aria-label="Upload PDF file input"
+                            />
+
+                            {/* Accessible Button to trigger file input */}
+                            <button
+                                type="button"
+                                onClick={() => document.getElementById("pdf-file-input")?.click()}
+                                aria-label="Choose PDF Document file to upload"
+                                className="mt-6 inline-flex items-center gap-2 cursor-pointer rounded-xl bg-blue-600 px-6 py-3 text-xs font-bold text-white shadow-md shadow-blue-500/20 hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-500/20 transition"
+                            >
                                 <Upload className="h-4 w-4" />
                                 Choose PDF Document
-                                <input
-                                    type="file"
-                                    accept=".pdf,application/pdf"
-                                    onChange={handleFileChange}
-                                    className="hidden"
-                                />
-                            </label>
+                            </button>
                         </div>
                     </div>
                 ) : (
@@ -461,7 +471,7 @@ export default function PDFToWord() {
                         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-slate-200/60 pb-4">
                             <div>
                                 <p className="break-all font-bold text-slate-900 text-sm">{file.name}</p>
-                                <p className="text-xs text-slate-500 mt-0.5">
+                                <p className="text-xs text-slate-600 mt-0.5 font-medium">
                                     {(file.size / 1024 / 1024).toFixed(2)} MB
                                 </p>
                             </div>
@@ -470,7 +480,8 @@ export default function PDFToWord() {
                                 <button
                                     type="button"
                                     onClick={removeFile}
-                                    className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-rose-600 hover:bg-rose-50 transition"
+                                    aria-label="Remove selected PDF file"
+                                    className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-rose-600 hover:bg-rose-50 focus:outline-none focus:ring-2 focus:ring-rose-500/20 transition cursor-pointer"
                                 >
                                     <Trash2 className="h-4 w-4" />
                                     Remove
@@ -479,7 +490,7 @@ export default function PDFToWord() {
                         </div>
 
                         {/* OCR Info Badge */}
-                        <div className="mt-4 flex items-center gap-2.5 rounded-xl bg-blue-50 border border-blue-100 p-3.5 text-xs text-blue-800 font-medium">
+                        <div className="mt-4 flex items-center gap-2.5 rounded-xl bg-blue-50 border border-blue-100 p-3.5 text-xs text-blue-900 font-semibold">
                             <Sparkles className="h-4 w-4 text-blue-600 shrink-0" />
                             <span>OCR Engine Ready: Scanned PDFs automatically process English + Urdu Nastaliq text.</span>
                         </div>
@@ -490,7 +501,8 @@ export default function PDFToWord() {
                                 type="button"
                                 onClick={convertToWord}
                                 disabled={converting}
-                                className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 py-3.5 text-sm font-bold text-white shadow-md hover:bg-blue-700 transition disabled:opacity-60 cursor-pointer"
+                                aria-label="Convert PDF to Word document"
+                                className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 py-3.5 text-sm font-bold text-white shadow-md hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-500/20 transition disabled:opacity-60 cursor-pointer"
                             >
                                 {converting ? <Loader2 className="h-5 w-5 animate-spin" /> : <Zap className="h-5 w-5" />}
                                 {converting ? "Processing Conversion..." : "Convert PDF to Word"}
@@ -500,9 +512,9 @@ export default function PDFToWord() {
                         {/* Progress Bar & Status Text */}
                         {converting && (
                             <div className="mt-6 space-y-2">
-                                <div className="flex items-center justify-between text-xs font-semibold">
-                                    <span className="text-slate-600">{statusText}</span>
-                                    <span className="text-blue-600 font-bold">{progress}%</span>
+                                <div className="flex items-center justify-between text-xs font-bold">
+                                    <span className="text-slate-700">{statusText}</span>
+                                    <span className="text-blue-600">{progress}%</span>
                                 </div>
                                 <div className="h-2.5 overflow-hidden rounded-full bg-slate-200">
                                     <div
@@ -515,8 +527,8 @@ export default function PDFToWord() {
 
                         {/* Error Box */}
                         {status === "error" && error && (
-                            <div className="mt-6 flex items-center gap-3 rounded-2xl bg-rose-50 border border-rose-200 p-4 text-xs font-medium text-rose-700">
-                                <AlertCircle className="h-5 w-5 text-rose-500 shrink-0" />
+                            <div className="mt-6 flex items-center gap-3 rounded-2xl bg-rose-50 border border-rose-200 p-4 text-xs font-semibold text-rose-800" role="alert">
+                                <AlertCircle className="h-5 w-5 text-rose-600 shrink-0" />
                                 <span>{error}</span>
                             </div>
                         )}
@@ -524,30 +536,32 @@ export default function PDFToWord() {
                         {/* Success Download Banner */}
                         {status === "done" && downloadUrl && (
                             <div className="mt-6 rounded-2xl border border-emerald-200 bg-emerald-50/80 p-6 text-center">
-                                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-500 text-white mx-auto mb-3 shadow-md">
+                                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-600 text-white mx-auto mb-3 shadow-md">
                                     <CheckCircle2 className="h-7 w-7" />
                                 </div>
                                 <h3 className="text-lg font-bold text-slate-900">Conversion Completed!</h3>
-                                <p className="text-xs text-slate-600 mt-1">Your editable Word document (.docx) is ready for download.</p>
+                                <p className="text-xs text-slate-700 font-medium mt-1">Your editable Word document (.docx) is ready for download.</p>
 
                                 <div className="mt-5 flex flex-wrap justify-center gap-3">
                                     <button
                                         type="button"
                                         onClick={downloadWord}
-                                        className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-6 py-3 text-xs font-bold text-white shadow-md hover:bg-emerald-700 transition"
+                                        aria-label="Download generated Word document"
+                                        className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-6 py-3 text-xs font-bold text-white shadow-md hover:bg-emerald-700 focus:outline-none focus:ring-4 focus:ring-emerald-500/20 transition cursor-pointer"
                                     >
                                         <Download className="h-4 w-4" />
-                                        Download Word Document
+                                        <span>Download Word Document</span>
                                     </button>
 
                                     <button
                                         type="button"
                                         onClick={convertToWord}
                                         disabled={converting}
-                                        className="inline-flex items-center gap-2 rounded-xl border border-blue-600 bg-white px-6 py-3 text-xs font-bold text-blue-600 hover:bg-blue-50 transition disabled:opacity-60"
+                                        aria-label="Re-convert PDF document"
+                                        className="inline-flex items-center gap-2 rounded-xl border border-blue-600 bg-white px-6 py-3 text-xs font-bold text-blue-600 hover:bg-blue-50 focus:outline-none focus:ring-4 focus:ring-blue-500/20 transition disabled:opacity-60 cursor-pointer"
                                     >
                                         <RefreshCw className="h-4 w-4" />
-                                        Re-convert
+                                        <span>Re-convert</span>
                                     </button>
                                 </div>
                             </div>
@@ -561,23 +575,23 @@ export default function PDFToWord() {
                         <FileText className="h-5 w-5 text-blue-600 shrink-0 mt-0.5" />
                         <div>
                             <h4 className="font-bold text-xs text-slate-900">Text PDFs</h4>
-                            <p className="text-[11px] text-slate-500 mt-0.5">Extract text directly from digital PDF documents.</p>
+                            <p className="text-[11px] text-slate-600 mt-0.5 font-medium">Extract text directly from digital PDF documents.</p>
                         </div>
                     </div>
 
                     <div className="rounded-2xl bg-slate-50/80 p-4 border border-slate-100 flex items-start gap-3">
-                        <Zap className="h-5 w-5 text-amber-500 shrink-0 mt-0.5" />
+                        <Zap className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
                         <div>
                             <h4 className="font-bold text-xs text-slate-900">Scanned PDFs</h4>
-                            <p className="text-[11px] text-slate-500 mt-0.5">Auto OCR extraction for scanned English & Urdu text.</p>
+                            <p className="text-[11px] text-slate-600 mt-0.5 font-medium">Auto OCR extraction for scanned English & Urdu text.</p>
                         </div>
                     </div>
 
                     <div className="rounded-2xl bg-slate-50/80 p-4 border border-slate-100 flex items-start gap-3">
-                        <ShieldCheck className="h-5 w-5 text-emerald-500 shrink-0 mt-0.5" />
+                        <ShieldCheck className="h-5 w-5 text-emerald-600 shrink-0 mt-0.5" />
                         <div>
                             <h4 className="font-bold text-xs text-slate-900">100% Private</h4>
-                            <p className="text-[11px] text-slate-500 mt-0.5">Files process strictly inside your local browser.</p>
+                            <p className="text-[11px] text-slate-600 mt-0.5 font-medium">Files process strictly inside your local browser.</p>
                         </div>
                     </div>
                 </div>
@@ -591,7 +605,7 @@ export default function PDFToWord() {
                     </div>
                     <h3 className="text-lg font-bold text-slate-900">About PDF to Word Converter</h3>
                 </div>
-                <p className="text-xs text-slate-600 leading-relaxed">
+                <p className="text-xs text-slate-700 font-medium leading-relaxed">
                     Convert standard digital and scanned PDF documents directly into editable Word (.docx) files right inside your browser. Powered by advanced PDF parsing and built-in OCR engines with English and Urdu Nastaliq support, ensuring complete privacy with zero server file uploads.
                 </p>
             </div>
@@ -600,22 +614,22 @@ export default function PDFToWord() {
             <div className="grid gap-6 md:grid-cols-2">
                 <div className="rounded-3xl border border-slate-200/80 bg-white p-6 md:p-8 shadow-sm space-y-4">
                     <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-50 text-amber-600 border border-amber-100">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-50 text-amber-700 border border-amber-100">
                             <Zap className="h-5 w-5" />
                         </div>
                         <h3 className="text-base font-bold text-slate-900">How to Use</h3>
                     </div>
-                    <ul className="space-y-3 text-xs text-slate-600">
+                    <ul className="space-y-3 text-xs text-slate-700 font-medium">
                         <li className="flex items-start gap-2.5">
-                            <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-slate-100 font-bold text-slate-700 text-[10px]">1</span>
+                            <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-slate-100 font-bold text-slate-800 text-[10px]">1</span>
                             <span>Upload or drag & drop your PDF document into the browser box.</span>
                         </li>
                         <li className="flex items-start gap-2.5">
-                            <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-slate-100 font-bold text-slate-700 text-[10px]">2</span>
+                            <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-slate-100 font-bold text-slate-800 text-[10px]">2</span>
                             <span>Click on the &quot;Convert PDF to Word&quot; button to begin local processing.</span>
                         </li>
                         <li className="flex items-start gap-2.5">
-                            <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-slate-100 font-bold text-slate-700 text-[10px]">3</span>
+                            <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-slate-100 font-bold text-slate-800 text-[10px]">3</span>
                             <span>Download your fully editable Word document instantly.</span>
                         </li>
                     </ul>
@@ -623,26 +637,26 @@ export default function PDFToWord() {
 
                 <div className="rounded-3xl border border-slate-200/80 bg-white p-6 md:p-8 shadow-sm space-y-4">
                     <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-100">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-100">
                             <ShieldCheck className="h-5 w-5" />
                         </div>
                         <h3 className="text-base font-bold text-slate-900">Key Advantages</h3>
                     </div>
-                    <ul className="space-y-2.5 text-xs text-slate-600">
+                    <ul className="space-y-2.5 text-xs text-slate-700 font-medium">
                         <li className="flex items-center gap-2">
-                            <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
+                            <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
                             <span>100% free with no registration or limits</span>
                         </li>
                         <li className="flex items-center gap-2">
-                            <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
+                            <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
                             <span>Built-in OCR for English and Urdu text extraction</span>
                         </li>
                         <li className="flex items-center gap-2">
-                            <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
+                            <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
                             <span>Zero cloud uploads, guaranteeing maximum privacy</span>
                         </li>
                         <li className="flex items-center gap-2">
-                            <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
+                            <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
                             <span>Lightning-fast client-side WebAssembly execution</span>
                         </li>
                     </ul>
