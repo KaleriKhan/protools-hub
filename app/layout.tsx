@@ -69,7 +69,18 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <head>
-        {/* Google Analytics */}
+        {/* Meta tags and fonts managed by Next.js metadata API */}
+      </head>
+      <body className="min-h-full bg-slate-50 text-slate-900" suppressHydrationWarning>
+        <div className="flex min-h-screen flex-col">
+          <Navbar />
+
+          <main className="flex-1">{children}</main>
+
+          <Footer />
+        </div>
+
+        {/* Google Analytics - Optimized with lazyOnload */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-MW7FHHPGEJ"
           strategy="lazyOnload"
@@ -89,15 +100,6 @@ export default function RootLayout({
           crossOrigin="anonymous"
           strategy="lazyOnload"
         />
-      </head>
-      <body className="min-h-full bg-slate-50 text-slate-900" suppressHydrationWarning>
-        <div className="flex min-h-screen flex-col">
-          <Navbar />
-
-          <main className="flex-1">{children}</main>
-
-          <Footer />
-        </div>
       </body>
     </html>
   );

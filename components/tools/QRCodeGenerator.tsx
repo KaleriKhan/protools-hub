@@ -63,10 +63,11 @@ export default function QRCodeGenerator() {
                     {/* Left Inputs */}
                     <div className="space-y-6">
                         <div>
-                            <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">
+                            <label htmlFor="qr-text-input" className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">
                                 Website URL or Text
                             </label>
                             <input
+                                id="qr-text-input"
                                 type="text"
                                 value={text}
                                 onChange={(e) => setText(e.target.value)}
@@ -78,35 +79,40 @@ export default function QRCodeGenerator() {
                         {/* Customizations */}
                         <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <label className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">
+                                <label htmlFor="qr-fg-color" className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">
                                     <Palette className="h-3.5 w-3.5" /> QR Color
                                 </label>
                                 <input
+                                    id="qr-fg-color"
                                     type="color"
                                     value={fgColor}
                                     onChange={(e) => setFgColor(e.target.value)}
+                                    aria-label="QR foreground color"
                                     className="h-10 w-full rounded-xl border border-slate-200 p-1 cursor-pointer bg-white"
                                 />
                             </div>
 
                             <div>
-                                <label className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">
+                                <label htmlFor="qr-bg-color" className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">
                                     <Palette className="h-3.5 w-3.5" /> Background
                                 </label>
                                 <input
+                                    id="qr-bg-color"
                                     type="color"
                                     value={bgColor}
                                     onChange={(e) => setBgColor(e.target.value)}
+                                    aria-label="QR background color"
                                     className="h-10 w-full rounded-xl border border-slate-200 p-1 cursor-pointer bg-white"
                                 />
                             </div>
                         </div>
 
                         <div>
-                            <label className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">
+                            <label htmlFor="qr-resolution-size" className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">
                                 <Layers className="h-3.5 w-3.5" /> Resolution Size
                             </label>
                             <select
+                                id="qr-resolution-size"
                                 value={size}
                                 onChange={(e) => setSize(Number(e.target.value))}
                                 className="w-full rounded-2xl border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
@@ -121,12 +127,13 @@ export default function QRCodeGenerator() {
                     {/* Right Canvas Preview */}
                     <div className="flex flex-col items-center justify-center rounded-3xl border border-slate-200/80 bg-slate-50/50 p-6 text-center">
                         <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-md mb-6">
-                            <canvas ref={canvasRef} className="max-w-full h-auto rounded-lg" />
+                            <canvas ref={canvasRef} aria-label="Generated QR Code preview" className="max-w-full h-auto rounded-lg" />
                         </div>
 
                         <button
                             onClick={handleDownload}
                             disabled={!text.trim()}
+                            aria-label="Download QR Code as PNG image"
                             className="flex items-center gap-2 rounded-xl bg-purple-600 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-purple-500/25 hover:bg-purple-700 transition disabled:opacity-50"
                         >
                             <Download className="h-4 w-4" />

@@ -51,7 +51,7 @@ export async function generateMetadata({
   }
 
   return {
-    title: `${tool.name} - Free Online Tool | ProTools Hub`,
+    title: `${tool.name} | Free Online Tool | ProTools Hub`,
     description: tool.description,
   };
 }
@@ -142,7 +142,7 @@ export default async function ToolPage({
             <div className="rounded-3xl border border-slate-200/80 bg-white p-8 shadow-sm">
               <div className="flex items-center gap-2.5 mb-6 text-slate-900 font-extrabold text-xl">
                 <Zap className="h-5 w-5 text-amber-500" />
-                <h3>How to Use</h3>
+                <h2>How to Use</h2>
               </div>
               <ul className="space-y-4">
                 {[
@@ -164,7 +164,7 @@ export default async function ToolPage({
             <div className="rounded-3xl border border-slate-200/80 bg-white p-8 shadow-sm">
               <div className="flex items-center gap-2.5 mb-6 text-slate-900 font-extrabold text-xl">
                 <Layers className="h-5 w-5 text-blue-600" />
-                <h3>Key Features</h3>
+                <h2>Key Features</h2>
               </div>
               <ul className="space-y-3.5">
                 {[
@@ -186,17 +186,17 @@ export default async function ToolPage({
           <div className="rounded-3xl border border-slate-200/80 bg-white p-8 shadow-sm">
             <div className="flex items-center gap-2.5 mb-8 text-slate-900 font-extrabold text-2xl">
               <HelpCircle className="h-6 w-6 text-indigo-600" />
-              <h3>Frequently Asked Questions</h3>
+              <h2>Frequently Asked Questions</h2>
             </div>
             <div className="space-y-4">
               <div className="rounded-2xl border border-slate-100 bg-slate-50/50 p-5">
-                <h4 className="font-bold text-slate-900 text-sm sm:text-base">What is JSON?</h4>
+                <h3 className="font-bold text-slate-900 text-sm sm:text-base">What is JSON?</h3>
                 <p className="mt-2 text-xs sm:text-sm text-slate-600 leading-relaxed">
                   JSON (JavaScript Object Notation) is a lightweight data format widely used for storing and exchanging structured data between web clients and servers.
                 </p>
               </div>
               <div className="rounded-2xl border border-slate-100 bg-slate-50/50 p-5">
-                <h4 className="font-bold text-slate-900 text-sm sm:text-base">Is my JSON data uploaded to a server?</h4>
+                <h3 className="font-bold text-slate-900 text-sm sm:text-base">Is my JSON data uploaded to a server?</h3>
                 <p className="mt-2 text-xs sm:text-sm text-slate-600 leading-relaxed">
                   No. The conversion and validation process happens entirely inside your web browser. Your private API payloads or JSON data are never sent to external servers.
                 </p>
@@ -227,7 +227,7 @@ export default async function ToolPage({
             <div className="rounded-3xl border border-slate-200/80 bg-white p-8 shadow-sm">
               <div className="flex items-center gap-2.5 mb-6 text-slate-900 font-extrabold text-xl">
                 <Zap className="h-5 w-5 text-rose-500" />
-                <h3>How to Use</h3>
+                <h2>How to Use</h2>
               </div>
               <ul className="space-y-4">
                 {[
@@ -249,7 +249,7 @@ export default async function ToolPage({
             <div className="rounded-3xl border border-slate-200/80 bg-white p-8 shadow-sm">
               <div className="flex items-center gap-2.5 mb-6 text-slate-900 font-extrabold text-xl">
                 <Layers className="h-5 w-5 text-rose-600" />
-                <h3>Supported Formats</h3>
+                <h2>Supported Formats</h2>
               </div>
               <ul className="space-y-3.5">
                 {[
@@ -291,7 +291,7 @@ export default async function ToolPage({
             <div className="rounded-3xl border border-slate-200/80 bg-white p-8 shadow-sm">
               <div className="flex items-center gap-2.5 mb-6 text-slate-900 font-extrabold text-xl">
                 <Zap className="h-5 w-5 text-teal-500" />
-                <h3>How to Use</h3>
+                <h2>How to Use</h2>
               </div>
               <ul className="space-y-4">
                 {[
@@ -313,7 +313,7 @@ export default async function ToolPage({
             <div className="rounded-3xl border border-slate-200/80 bg-white p-8 shadow-sm">
               <div className="flex items-center gap-2.5 mb-6 text-slate-900 font-extrabold text-xl">
                 <Layers className="h-5 w-5 text-teal-600" />
-                <h3>Features</h3>
+                <h2>Features</h2>
               </div>
               <ul className="space-y-3.5">
                 {[
@@ -355,7 +355,7 @@ export default async function ToolPage({
             <div className="rounded-3xl border border-slate-200/80 bg-white p-8 shadow-sm">
               <div className="flex items-center gap-2.5 mb-6 text-slate-900 font-extrabold text-xl">
                 <Zap className="h-5 w-5 text-amber-500" />
-                <h3>How to Generate Passwords</h3>
+                <h2>How to Generate Passwords</h2>
               </div>
               <ul className="space-y-4">
                 {[
@@ -377,7 +377,7 @@ export default async function ToolPage({
             <div className="rounded-3xl border border-slate-200/80 bg-white p-8 shadow-sm">
               <div className="flex items-center gap-2.5 mb-6 text-slate-900 font-extrabold text-xl">
                 <Layers className="h-5 w-5 text-amber-600" />
-                <h3>Security Features</h3>
+                <h2>Security Features</h2>
               </div>
               <ul className="space-y-3.5">
                 {[
@@ -419,7 +419,7 @@ export default async function ToolPage({
             <div className="rounded-3xl border border-slate-200/80 bg-white p-8 shadow-sm">
               <div className="flex items-center gap-2.5 mb-6 text-slate-900 font-extrabold text-xl">
                 <Zap className="h-5 w-5 text-amber-500" />
-                <h3>How to Create QR Codes</h3>
+                <h2>How to Create QR Codes</h2>
               </div>
               <ul className="space-y-4">
                 {[
@@ -441,7 +441,7 @@ export default async function ToolPage({
             <div className="rounded-3xl border border-slate-200/80 bg-white p-8 shadow-sm">
               <div className="flex items-center gap-2.5 mb-6 text-slate-900 font-extrabold text-xl">
                 <Layers className="h-5 w-5 text-purple-600" />
-                <h3>QR Code Features</h3>
+                <h2>QR Code Features</h2>
               </div>
               <ul className="space-y-3.5">
                 {[
@@ -483,7 +483,7 @@ export default async function ToolPage({
             <div className="rounded-3xl border border-slate-200/80 bg-white p-8 shadow-sm">
               <div className="flex items-center gap-2.5 mb-6 text-slate-900 font-extrabold text-xl">
                 <Zap className="h-5 w-5 text-amber-500" />
-                <h3>How to Use</h3>
+                <h2>How to Use</h2>
               </div>
               <ul className="space-y-4">
                 {[
@@ -505,7 +505,7 @@ export default async function ToolPage({
             <div className="rounded-3xl border border-slate-200/80 bg-white p-8 shadow-sm">
               <div className="flex items-center gap-2.5 mb-6 text-slate-900 font-extrabold text-xl">
                 <Layers className="h-5 w-5 text-blue-600" />
-                <h3>Key Advantages</h3>
+                <h2>Key Advantages</h2>
               </div>
               <ul className="space-y-3.5">
                 {[

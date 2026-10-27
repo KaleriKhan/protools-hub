@@ -7,8 +7,39 @@ export default function BackgroundRemover() {
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
     const [processedImage, setProcessedImage] = useState<string | null>(null);
     const [isProcessing, setIsProcessing] = useState(false);
-    const [progressText, setProgressText] = useState("Initializing AI Model...");
+    const [progressText, setProgressText] = useState("Optimizing & Processing AI...");
     const [dragActive, setDragActive] = useState(false);
+
+    // Helper function to resize image for fast AI processing
+    const resizeImage = (dataUrl: string, maxWidth = 640, maxHeight = 640): Promise<string> => {
+        return new Promise((resolve) => {
+            const img = new window.Image();
+            img.src = dataUrl;
+            img.onload = () => {
+                let width = img.width;
+                let height = img.height;
+
+                if (width > height) {
+                    if (width > maxWidth) {
+                        height = Math.round((height * maxWidth) / width);
+                        width = maxWidth;
+                    }
+                } else {
+                    if (height > maxHeight) {
+                        width = Math.round((width * maxHeight) / height);
+                        height = maxHeight;
+                    }
+                }
+
+                const canvas = document.createElement("canvas");
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext("2d");
+                ctx?.drawImage(img, 0, 0, width, height);
+                resolve(canvas.toDataURL("image/jpeg", 0.85));
+            };
+        });
+    };
 
     const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -25,29 +56,29 @@ export default function BackgroundRemover() {
     const handleProcessAi = async () => {
         if (!selectedImage) return;
         setIsProcessing(true);
-        setProgressText("Loading AI Neural Network (First time takes 1-2 mins)...");
+        setProgressText("Optimizing image for speed...");
 
         try {
-            const imgly = await import("@imgly/background-removal");
-            const removeBackground = imgly.default || imgly.removeBackground;
+            // Resize image first for lightning-fast server processing
+            const optimizedImage = await resizeImage(selectedImage, 640, 640);
 
-            setProgressText("Processing image & removing background...");
+            setProgressText("Removing background instantly...");
 
-            // @ts-ignore
-            const blob = await removeBackground(selectedImage, {
-                progress: (key: string, current: number, total: number) => {
-                    if (total > 0) {
-                        const percent = Math.round((current / total) * 100);
-                        setProgressText(`AI Loading: ${percent}% (${key})`);
-                    }
-                },
+            const res = await fetch("/api/remove-bg", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ image: optimizedImage }),
             });
 
-            const url = URL.createObjectURL(blob);
-            setProcessedImage(url);
+            const data = await res.json();
+            if (data.success) {
+                setProcessedImage(data.image);
+            } else {
+                alert("Processing failed. Please try another image.");
+            }
         } catch (error) {
-            console.error("Background removal failed:", error);
-            alert("Failed to remove background. Please try another image.");
+            console.error("Error:", error);
+            alert("Something went wrong!");
         } finally {
             setIsProcessing(false);
         }
@@ -61,7 +92,7 @@ export default function BackgroundRemover() {
     return (
         <div className="w-full max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 space-y-12">
 
-            {/* Clean Professional Card Wrapper (Gradient Border Removed) */}
+            {/* Clean Professional Card Wrapper */}
             <div className="bg-white rounded-[2.5rem] border border-slate-200/80 p-8 md:p-10 shadow-xl shadow-slate-100 space-y-8">
 
                 {/* Header */}
@@ -72,12 +103,12 @@ export default function BackgroundRemover() {
                         </div>
                         <div>
                             <h1 className="text-2xl font-black tracking-tight text-slate-900">AI Background Remover</h1>
-                            <p className="text-xs font-medium text-slate-500">Remove image backgrounds instantly with high-precision browser AI.</p>
+                            <p className="text-xs font-medium text-slate-500">Remove image backgrounds instantly with high-precision server AI.</p>
                         </div>
                     </div>
                     <div className="flex items-center gap-2 px-4 py-2 rounded-2xl bg-indigo-50 border border-indigo-100 text-indigo-700 text-xs font-bold w-fit">
                         <ShieldCheck className="h-4 w-4" />
-                        <span>100% Free Browser AI</span>
+                        <span>Lightning Fast AI</span>
                     </div>
                 </div>
 
@@ -156,7 +187,7 @@ export default function BackgroundRemover() {
                                 ) : (
                                     <>
                                         <Sparkles className="h-4 w-4 text-amber-300" />
-                                        <span>Remove Background Real AI</span>
+                                        <span>Remove Background Fast AI</span>
                                     </>
                                 )}
                             </button>
@@ -211,19 +242,19 @@ export default function BackgroundRemover() {
                     <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 space-y-1">
                         <h4 className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
                             <Zap className="h-4 w-4 text-indigo-600" />
-                            Real AI Edge Detection
+                            Optimized Fast AI Cutout
                         </h4>
                         <p className="text-[11px] text-slate-500 leading-relaxed">
-                            Advanced browser WASM neural model isolates hair and complex curves accurately.
+                            Auto-downscales photos for lightning-fast server performance.
                         </p>
                     </div>
                     <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 space-y-1">
                         <h4 className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
                             <ShieldCheck className="h-4 w-4 text-emerald-600" />
-                            100% Private Client-Side
+                            Secure & Reliable
                         </h4>
                         <p className="text-[11px] text-slate-500 leading-relaxed">
-                            Images never leave your browser device, ensuring complete privacy.
+                            Powered by high-precision server-side neural networks.
                         </p>
                     </div>
                 </div>
@@ -239,7 +270,7 @@ export default function BackgroundRemover() {
                     <h3 className="text-lg font-bold text-slate-900">About AI Background Remover</h3>
                 </div>
                 <p className="text-xs text-slate-600 leading-relaxed">
-                    Remove image backgrounds instantly with high-precision AI edge detection[cite: 1]. Fast, secure, and browser-processed utility designed for seamless everyday productivity without registration.
+                    Remove image backgrounds instantly with high-precision AI edge detection. Fast, secure, and server-processed utility designed for seamless everyday productivity without registration.
                 </p>
             </div>
 
@@ -259,9 +290,9 @@ export default function BackgroundRemover() {
                             <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-indigo-700 text-xs font-bold">1</span>
                             <p className="text-xs text-slate-600 pt-1">Upload or drag & drop your image file.</p>
                         </div>
-                        <div className="flex items-start gap-3">
+                        <div className="flex items-center gap-3">
                             <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-indigo-700 text-xs font-bold">2</span>
-                            <p className="text-xs text-slate-600 pt-1">Click remove background (First time loads AI model).</p>
+                            <p className="text-xs text-slate-600 pt-1">Click remove background for fast AI processing.</p>
                         </div>
                         <div className="flex items-start gap-3">
                             <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-indigo-700 text-xs font-bold">3</span>
@@ -281,11 +312,11 @@ export default function BackgroundRemover() {
                     <div className="space-y-3.5">
                         <div className="flex items-center gap-2.5 text-xs text-slate-700 font-medium">
                             <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
-                            <span>Real AI cutout without any API keys or fees</span>
+                            <span>Real AI cutout with optimized speed</span>
                         </div>
                         <div className="flex items-center gap-2.5 text-xs text-slate-700 font-medium">
                             <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
-                            <span>100% Client-side privacy assurance</span>
+                            <span>Server-accelerated edge detection</span>
                         </div>
                         <div className="flex items-center gap-2.5 text-xs text-slate-700 font-medium">
                             <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
@@ -293,7 +324,7 @@ export default function BackgroundRemover() {
                         </div>
                         <div className="flex items-center gap-2.5 text-xs text-slate-700 font-medium">
                             <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
-                            <span>Lightning fast response on subsequent images</span>
+                            <span>Lightning fast response on all images</span>
                         </div>
                     </div>
                 </div>

@@ -81,6 +81,7 @@ export default function JSONFormatter() {
                 <button
                   key={spaces}
                   onClick={() => setIndent(spaces)}
+                  aria-label={`Set indentation to ${spaces} spaces`}
                   className={`px-2.5 py-1 rounded-lg transition ${indent === spaces ? "bg-white text-slate-900 shadow-sm" : "hover:text-slate-900"
                     }`}
                 >
@@ -107,6 +108,7 @@ export default function JSONFormatter() {
 
             <button
               onClick={handleClear}
+              aria-label="Clear JSON input and output"
               className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-xs font-semibold text-rose-600 hover:bg-rose-50 hover:border-rose-200 transition"
             >
               <Trash2 className="h-4 w-4" />
@@ -114,30 +116,33 @@ export default function JSONFormatter() {
           </div>
         </div>
 
-        {/* Validation Alert Status */}
-        {error && (
-          <div className="mb-6 flex items-center gap-3 rounded-2xl bg-rose-50 border border-rose-200 p-4 text-xs font-medium text-rose-700">
-            <AlertCircle className="h-5 w-5 text-rose-500 shrink-0" />
-            <span>{error}</span>
-          </div>
-        )}
+        {/* Validation Alert Status with aria-live */}
+        <div aria-live="polite" aria-atomic="true">
+          {error && (
+            <div className="mb-6 flex items-center gap-3 rounded-2xl bg-rose-50 border border-rose-200 p-4 text-xs font-medium text-rose-700">
+              <AlertCircle className="h-5 w-5 text-rose-500 shrink-0" />
+              <span>{error}</span>
+            </div>
+          )}
 
-        {outputJson && !error && (
-          <div className="mb-6 flex items-center gap-3 rounded-2xl bg-emerald-50 border border-emerald-200 p-3.5 text-xs font-medium text-emerald-700">
-            <CheckCircle2 className="h-5 w-5 text-emerald-500 shrink-0" />
-            <span>Valid JSON Syntax! Ready to copy or download.</span>
-          </div>
-        )}
+          {outputJson && !error && (
+            <div className="mb-6 flex items-center gap-3 rounded-2xl bg-emerald-50 border border-emerald-200 p-3.5 text-xs font-medium text-emerald-700">
+              <CheckCircle2 className="h-5 w-5 text-emerald-500 shrink-0" />
+              <span>Valid JSON Syntax! Ready to copy or download.</span>
+            </div>
+          )}
+        </div>
 
         {/* Split Input / Output Panels */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
           {/* Input Textarea */}
           <div className="space-y-2">
-            <label className="block text-xs font-bold uppercase tracking-wider text-slate-500">
+            <label htmlFor="raw-input-json" className="block text-xs font-bold uppercase tracking-wider text-slate-500">
               Raw Input JSON
             </label>
             <textarea
+              id="raw-input-json"
               value={inputJson}
               onChange={(e) => setInputJson(e.target.value)}
               rows={14}
@@ -149,12 +154,13 @@ export default function JSONFormatter() {
           {/* Output Textarea */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-500">
+              <label htmlFor="formatted-output-json" className="block text-xs font-bold uppercase tracking-wider text-slate-500">
                 Formatted Output
               </label>
               {outputJson && (
                 <button
                   onClick={handleCopy}
+                  aria-label="Copy formatted JSON output"
                   className="flex items-center gap-1.5 rounded-lg bg-slate-900 px-3 py-1 text-xs font-semibold text-white hover:bg-slate-800 transition"
                 >
                   {copied ? <Check className="h-3.5 w-3.5 text-emerald-400" /> : <Copy className="h-3.5 w-3.5" />}
@@ -163,6 +169,7 @@ export default function JSONFormatter() {
               )}
             </div>
             <textarea
+              id="formatted-output-json"
               readOnly
               value={outputJson}
               rows={14}

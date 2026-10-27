@@ -78,7 +78,7 @@ export default function FeaturedTools() {
                   <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-50 border border-slate-100 group-hover:bg-blue-50 group-hover:border-blue-100 group-hover:scale-110 transition-all duration-300 shadow-sm">
                     {getToolIcon(tool.slug)}
                   </div>
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 bg-slate-100 px-3 py-1 rounded-lg group-hover:bg-blue-50 group-hover:text-blue-700 transition-colors">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-800 bg-slate-200/80 px-3 py-1 rounded-lg group-hover:bg-blue-50 group-hover:text-blue-700 transition-colors">
                     {tool.category}
                   </span>
                 </div>

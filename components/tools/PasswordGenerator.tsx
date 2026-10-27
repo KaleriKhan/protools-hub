@@ -42,11 +42,10 @@ export default function PasswordGenerator() {
         setTimeout(() => setCopied(false), 2000);
     };
 
-    // Strength Indicator
     const getStrength = () => {
-        if (length < 8) return { label: "Weak", color: "bg-rose-500", text: "text-rose-600" };
-        if (length < 12) return { label: "Medium", color: "bg-amber-500", text: "text-amber-600" };
-        return { label: "Strong", color: "bg-emerald-500", text: "text-emerald-600" };
+        if (length < 8) return { label: "Weak", color: "bg-rose-600", text: "text-rose-700 font-bold" };
+        if (length < 12) return { label: "Medium", color: "bg-amber-600", text: "text-amber-800 font-bold" };
+        return { label: "Strong", color: "bg-emerald-600", text: "text-emerald-800 font-bold" };
     };
 
     const strength = getStrength();
@@ -75,6 +74,7 @@ export default function PasswordGenerator() {
                         <div className="flex items-center gap-2 shrink-0">
                             <button
                                 onClick={generatePassword}
+                                aria-label="Regenerate Password"
                                 className="p-2 rounded-xl text-slate-500 hover:text-slate-900 hover:bg-slate-200/60 transition"
                                 title="Regenerate Password"
                             >
@@ -82,6 +82,7 @@ export default function PasswordGenerator() {
                             </button>
                             <button
                                 onClick={handleCopy}
+                                aria-label="Copy generated password"
                                 className="flex items-center gap-1.5 rounded-xl bg-blue-600 px-4 py-2.5 text-xs font-bold text-white shadow-md shadow-blue-500/20 hover:bg-blue-700 transition"
                             >
                                 {copied ? <Check className="h-4 w-4 text-emerald-300" /> : <Copy className="h-4 w-4" />}
@@ -93,8 +94,8 @@ export default function PasswordGenerator() {
                     {/* Strength Bar */}
                     <div className="mt-3 flex items-center justify-between px-1">
                         <div className="flex items-center gap-2 text-xs font-semibold">
-                            {length >= 12 ? <ShieldCheck className="h-4 w-4 text-emerald-500" /> : <ShieldAlert className="h-4 w-4 text-amber-500" />}
-                            <span className="text-slate-500">Strength:</span>
+                            {length >= 12 ? <ShieldCheck className="h-4 w-4 text-emerald-600" /> : <ShieldAlert className="h-4 w-4 text-amber-600" />}
+                            <span className="text-slate-700">Strength:</span>
                             <span className={strength.text}>{strength.label}</span>
                         </div>
                         <div className="h-2 w-32 rounded-full bg-slate-100 overflow-hidden">
@@ -109,17 +110,19 @@ export default function PasswordGenerator() {
                     {/* Length Slider */}
                     <div>
                         <div className="flex justify-between items-center mb-2">
-                            <label className="text-xs font-bold uppercase tracking-wider text-slate-600">Password Length</label>
+                            <label htmlFor="password-length-slider" className="text-xs font-bold uppercase tracking-wider text-slate-600">Password Length</label>
                             <span className="text-sm font-extrabold text-blue-600 bg-blue-50 px-3 py-1 rounded-lg border border-blue-100">
                                 {length} Characters
                             </span>
                         </div>
                         <input
+                            id="password-length-slider"
                             type="range"
                             min={6}
                             max={32}
                             value={length}
                             onChange={(e) => setLength(Number(e.target.value))}
+                            aria-label="Password length"
                             className="w-full accent-blue-600 cursor-pointer"
                         />
                     </div>
@@ -131,6 +134,7 @@ export default function PasswordGenerator() {
                                 type="checkbox"
                                 checked={includeUppercase}
                                 onChange={(e) => setIncludeUppercase(e.target.checked)}
+                                aria-label="Include uppercase letters"
                                 className="h-4 w-4 accent-blue-600 rounded"
                             />
                             <span className="text-xs font-semibold text-slate-700">Uppercase Letters (A-Z)</span>
@@ -141,6 +145,7 @@ export default function PasswordGenerator() {
                                 type="checkbox"
                                 checked={includeLowercase}
                                 onChange={(e) => setIncludeLowercase(e.target.checked)}
+                                aria-label="Include lowercase letters"
                                 className="h-4 w-4 accent-blue-600 rounded"
                             />
                             <span className="text-xs font-semibold text-slate-700">Lowercase Letters (a-z)</span>
@@ -151,6 +156,7 @@ export default function PasswordGenerator() {
                                 type="checkbox"
                                 checked={includeNumbers}
                                 onChange={(e) => setIncludeNumbers(e.target.checked)}
+                                aria-label="Include numbers"
                                 className="h-4 w-4 accent-blue-600 rounded"
                             />
                             <span className="text-xs font-semibold text-slate-700">Include Numbers (0-9)</span>
@@ -161,6 +167,7 @@ export default function PasswordGenerator() {
                                 type="checkbox"
                                 checked={includeSymbols}
                                 onChange={(e) => setIncludeSymbols(e.target.checked)}
+                                aria-label="Include special symbols"
                                 className="h-4 w-4 accent-blue-600 rounded"
                             />
                             <span className="text-xs font-semibold text-slate-700">Special Symbols (!@#$)</span>

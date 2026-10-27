@@ -80,7 +80,7 @@ export default function FeaturedCategories() {
           <h2 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">
             Explore Categories
           </h2>
-          <p className="text-slate-500 text-sm md:text-base leading-relaxed">
+          <p className="text-slate-600 text-sm md:text-base leading-relaxed">
             Find the right high-performance tool for your exact needs instantly.
           </p>
         </div>
@@ -108,17 +108,17 @@ export default function FeaturedCategories() {
                     <h3 className="text-xl font-bold text-slate-900 group-hover:text-blue-600 transition-colors duration-200">
                       {cat.title}
                     </h3>
-                    <p className="text-sm text-slate-500 leading-relaxed font-normal">
+                    <p className="text-sm text-slate-600 leading-relaxed font-normal">
                       {cat.description}
                     </p>
                   </div>
                 </div>
 
                 <div className="mt-8 pt-4 border-t border-slate-100 flex items-center justify-between">
-                  <span className="inline-flex items-center justify-center rounded-xl bg-slate-100 px-4 py-2 text-xs font-bold text-slate-700 group-hover:bg-blue-600 group-hover:text-white transition-all duration-300">
+                  <span className="inline-flex items-center justify-center rounded-xl bg-slate-200/80 px-4 py-2 text-xs font-bold text-slate-900 group-hover:bg-blue-600 group-hover:text-white transition-all duration-300">
                     Explore Category
                   </span>
-                  <ArrowRight className="h-4 w-4 text-slate-400 group-hover:text-blue-600 group-hover:translate-x-1.5 transition-all duration-300" />
+                  <ArrowRight className="h-4 w-4 text-slate-500 group-hover:text-blue-600 group-hover:translate-x-1.5 transition-all duration-300" />
                 </div>
               </Link>
             );
