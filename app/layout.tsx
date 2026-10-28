@@ -94,8 +94,9 @@ export default function RootLayout({
           `}
         </Script>
 
-        {/* Google AdSense - Optimized with lazyOnload to improve performance score */}
+        {/* Google AdSense - Correctly configured without data-nscript warning */}
         <Script
+          async
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7165952973628019"
           crossOrigin="anonymous"
           strategy="lazyOnload"

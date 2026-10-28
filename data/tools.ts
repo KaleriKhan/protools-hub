@@ -121,10 +121,10 @@ export const tools = [
     },
     {
         id: 15,
-        slug: "background-remover",
-        name: "AI Background Remover",
-        category: "Image",
-        description: "Remove image backgrounds instantly with high-precision AI edge detection.",
+        slug: "json-schema-generator",
+        name: "JSON-LD Schema Generator",
+        category: "Developer",
+        description: "Generate Google-compliant structured data markup instantly for high SEO rankings.",
         featured: true,
     },
     {
