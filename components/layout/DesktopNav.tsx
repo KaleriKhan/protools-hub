@@ -2,23 +2,23 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { navigation } from "@/data/navigation";
+import { navigation, isActivePath } from "@/data/navigation";
 
 export default function DesktopNav() {
     const pathname = usePathname();
 
     return (
-        <nav className="hidden md:flex items-center gap-4" aria-label="Desktop Main Navigation">
+        <nav className="hidden items-center gap-1.5 md:flex" aria-label="Main navigation">
             {navigation.map((item) => {
-                const isActive = pathname === item.href;
+                const active = isActivePath(pathname, item.href);
                 return (
                     <Link
-                        key={item.name}
+                        key={item.href}
                         href={item.href}
-                        aria-current={isActive ? "page" : undefined}
-                        className={`text-xs font-bold px-2.5 py-1.5 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 ${isActive
-                                ? "text-blue-600 bg-blue-50/80"
-                                : "text-slate-600 hover:text-blue-600 hover:bg-slate-100/60"
+                        aria-current={active ? "page" : undefined}
+                        className={`rounded-lg border px-3 py-2 text-xs font-bold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${active
+                                ? "border-blue-500/20 bg-blue-500/10 text-blue-400"
+                                : "border-transparent text-slate-300 hover:bg-slate-800 hover:text-white"
                             }`}
                     >
                         {item.name}

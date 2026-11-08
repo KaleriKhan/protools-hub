@@ -1,68 +1,41 @@
+// app/blog/page.tsx
 import type { Metadata } from "next";
-import { Suspense } from "react";
-import BlogContent from "./BlogContent";
+import BlogContent from "@/app/blog/BlogContent";
+import { POSTS } from "@/data/posts";
+import { SITE_URL } from "@/lib/seo";
 
 export const metadata: Metadata = {
-  title: "Blog & Guides - Free Developer & Utility Tips | ProTools Hub",
-  description: "Read the latest tutorials, guides, and tips on web development, PDF optimization, image compression, and online browser utilities.",
-  keywords: [
-    "protools hub blog",
-    "developer tutorials",
-    "image compression guide",
-    "pdf optimization tips",
-    "web utilities blog"
-  ],
-  authors: [{ name: "ProTools Hub" }],
-  creator: "ProTools Hub",
-  publisher: "ProTools Hub",
-  metadataBase: new URL("https://myprotoolshub.com"),
-  alternates: {
-    canonical: "/blog",
-  },
+  title: "Blog: Guides on Images, PDFs, Text Tools and Privacy",
+  description:
+    "Practical guides on resizing and compressing images, understanding PDF compression, summarizing text and keeping your files private with browser-based tools.",
+  alternates: { canonical: "/blog" },
   openGraph: {
-    title: "Blog & Guides | ProTools Hub",
-    description: "Explore tutorials and guides on web tools, developer utilities, and optimization techniques.",
-    url: "https://myprotoolshub.com/blog",
+    title: "ProTools Hub Blog",
+    description: "Practical guides on images, PDFs, text tools and privacy.",
+    url: `${SITE_URL}/blog`,
     siteName: "ProTools Hub",
-    locale: "en_US",
     type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Blog & Guides | ProTools Hub",
-    description: "Explore tutorials and guides on free browser utility tools.",
-  },
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      "max-video-preview": -1,
-      "max-image-preview": "large",
-      "max-snippet": -1,
-    },
   },
 };
 
 export default function BlogPage() {
-  const schemaData = {
+  const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Blog",
-    "name": "ProTools Hub Blog",
-    "url": "https://myprotoolshub.com/blog",
-    "description": "Tutorials and guides for developer and media utility tools."
+    name: "ProTools Hub Blog",
+    url: `${SITE_URL}/blog`,
+    blogPost: POSTS.map((p) => ({
+      "@type": "BlogPosting",
+      headline: p.title,
+      url: `${SITE_URL}/blog/${p.slug}`,
+      datePublished: p.date,
+    })),
   };
 
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaData) }}
-      />
-      <Suspense fallback={<div className="p-12 text-center text-slate-500">Loading blog posts...</div>}>
-        <BlogContent />
-      </Suspense>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }} />
+      <BlogContent />
     </>
   );
 }

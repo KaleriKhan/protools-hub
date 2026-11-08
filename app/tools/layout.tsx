@@ -1,15 +1,13 @@
+// app/tools/layout.tsx
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-    title: "Free Online Tools",
+    title: "Free Online Tools for PDF, Images, Text & Code",
     description:
-        "Explore free online tools for PDF, images, text, developers, AI, calculators and more.",
+        "Browse free online tools to compress images and PDFs, convert PDF to Word, format JSON, generate passwords and QR codes, and more. No sign-up, runs in your browser.",
+    alternates: { canonical: "/tools" },
 };
 
-export default function ToolsLayout({
-    children,
-}: Readonly<{
-    children: React.ReactNode;
-}>) {
+export default function ToolsLayout({ children }: Readonly<{ children: React.ReactNode }>) {
     return children;
-};
+}

@@ -1,78 +1,77 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
+import { navigation, isActivePath, legalLinks } from "@/data/navigation";
 
 export default function MobileNav() {
-    const [isOpen, setIsOpen] = useState(false);
+    const [open, setOpen] = useState(false);
+    const pathname = usePathname();
+    const wrapRef = useRef<HTMLDivElement>(null);
 
-    // Keyboard accessibility: Close mobile menu on pressing 'Escape'
+    // Close after navigating
+    useEffect(() => setOpen(false), [pathname]);
+
+    // Close on Escape or outside click
     useEffect(() => {
-        const handleKeyDown = (e: KeyboardEvent) => {
-            if (e.key === "Escape" && isOpen) {
-                setIsOpen(false);
-            }
+        if (!open) return;
+        const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+        const onClick = (e: MouseEvent) => {
+            if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) setOpen(false);
         };
-        window.addEventListener("keydown", handleKeyDown);
-        return () => window.removeEventListener("keydown", handleKeyDown);
-    }, [isOpen]);
+        window.addEventListener("keydown", onKey);
+        document.addEventListener("mousedown", onClick);
+        return () => {
+            window.removeEventListener("keydown", onKey);
+            document.removeEventListener("mousedown", onClick);
+        };
+    }, [open]);
 
     return (
-        <div className="md:hidden relative">
+        <div ref={wrapRef} className="relative md:hidden">
             <button
                 type="button"
-                onClick={() => setIsOpen(!isOpen)}
-                aria-expanded={isOpen}
-                aria-label={isOpen ? "Close mobile menu" : "Open mobile menu"}
+                onClick={() => setOpen((o) => !o)}
+                aria-expanded={open}
                 aria-controls="mobile-nav-menu"
-                className="flex items-center gap-1.5 text-sm font-medium text-slate-700 p-2 rounded-lg hover:bg-slate-100 transition focus:outline-none focus:ring-2 focus:ring-blue-500"
+                aria-label={open ? "Close menu" : "Open menu"}
+                className="flex cursor-pointer items-center gap-1.5 rounded-lg border border-slate-800 bg-slate-900 p-2 text-sm font-medium text-slate-300 transition hover:bg-slate-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
             >
-                {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-                <span>{isOpen ? "Close" : "Menu"}</span>
+                {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+                <span>{open ? "Close" : "Menu"}</span>
             </button>
 
-            {/* Mobile Navigation Drawer / Links */}
-            {isOpen && (
-                <div
+            {open && (
+                <nav
                     id="mobile-nav-menu"
-                    className="absolute top-full left-0 w-full bg-white border-b border-slate-200 shadow-lg p-4 space-y-3 z-50"
+                    aria-label="Mobile navigation"
+                    className="absolute right-0 top-full z-50 mt-2 w-64 space-y-1 rounded-xl border border-slate-800 bg-slate-900 p-3 shadow-2xl"
                 >
-                    <a
-                        href="/"
-                        onClick={() => setIsOpen(false)}
-                        className="block text-sm font-semibold text-slate-800 hover:text-blue-600 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded px-1"
-                    >
-                        Home
-                    </a>
-                    <a
-                        href="/tools"
-                        onClick={() => setIsOpen(false)}
-                        className="block text-sm font-semibold text-slate-800 hover:text-blue-600 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded px-1"
-                    >
-                        All Tools
-                    </a>
-                    <a
-                        href="/categories"
-                        onClick={() => setIsOpen(false)}
-                        className="block text-sm font-semibold text-slate-800 hover:text-blue-600 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded px-1"
-                    >
-                        Categories
-                    </a>
-                    <a
-                        href="/blog"
-                        onClick={() => setIsOpen(false)}
-                        className="block text-sm font-semibold text-slate-800 hover:text-blue-600 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded px-1"
-                    >
-                        Blog
-                    </a>
-                    <a
-                        href="/contact"
-                        onClick={() => setIsOpen(false)}
-                        className="block text-sm font-semibold text-slate-800 hover:text-blue-600 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded px-1"
-                    >
-                        Contact
-                    </a>
-                </div>
+                    {navigation.map((item) => {
+                        const Icon = item.icon;
+                        const active = isActivePath(pathname, item.href);
+                        return (
+                            <Link
+                                key={item.href}
+                                href={item.href}
+                                aria-current={active ? "page" : undefined}
+                                className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold transition ${
+                                    active ? "bg-blue-500/10 text-blue-400" : "text-slate-200 hover:bg-slate-800 hover:text-blue-400"
+                                }`}
+                            >
+                                <Icon className="h-4 w-4" aria-hidden="true" />
+                                {item.name}
+                            </Link>
+                        );
+                    })}
+                    <div className="mt-2 flex items-center justify-center gap-4 border-t border-slate-800 pt-3 text-xs text-slate-400">
+                        {legalLinks.map((l) => (
+                            <Link key={l.href} href={l.href} className="transition hover:text-white">{l.name}</Link>
+                        ))}
+                    </div>
+                </nav>
             )}
         </div>
     );

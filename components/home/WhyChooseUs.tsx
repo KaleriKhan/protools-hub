@@ -1,88 +1,58 @@
-"use client";
+import { Zap, ShieldCheck, UserCheck, Smartphone, type LucideIcon } from "lucide-react";
 
-import { Zap, ShieldCheck, UserCheck, Smartphone } from "lucide-react";
-
-type FeatureItem = {
-    title: string;
-    description: string;
-    icon: any;
-    iconColor: string;
-    bgColor: string;
-};
+type FeatureItem = { title: string; description: string; icon: LucideIcon; iconColor: string; bgColor: string };
 
 const FEATURES: FeatureItem[] = [
     {
-        title: "100% Free",
-        description: "All tools are free to use without hidden charges or premium paywalls.",
-        icon: Zap,
-        iconColor: "text-amber-500",
-        bgColor: "bg-amber-50/80 border-amber-100",
+        title: "Free to use",
+        description: "Every tool is free with no premium tier or file-size paywall. The site is supported by advertising, so you never have to pay.",
+        icon: Zap, iconColor: "text-amber-400", bgColor: "bg-amber-500/10 border-amber-500/20",
     },
     {
-        title: "Fast & Secure",
-        description: "Your files are processed instantly right inside your browser with complete privacy.",
-        icon: ShieldCheck,
-        iconColor: "text-emerald-500",
-        bgColor: "bg-emerald-50/80 border-emerald-100",
+        title: "Private by design",
+        description: "Files you compress, convert or edit are processed in your browser and are not uploaded to our servers.",
+        icon: ShieldCheck, iconColor: "text-emerald-400", bgColor: "bg-emerald-500/10 border-emerald-500/20",
     },
     {
-        title: "No Registration",
-        description: "Use tools instantly without creating an account, logging in, or sharing emails.",
-        icon: UserCheck,
-        iconColor: "text-blue-600",
-        bgColor: "bg-blue-50/80 border-blue-100",
+        title: "No account needed",
+        description: "Open a tool and use it. There is no sign-up, login or email request standing between you and the result.",
+        icon: UserCheck, iconColor: "text-blue-400", bgColor: "bg-blue-500/10 border-blue-500/20",
     },
     {
-        title: "Works Everywhere",
-        description: "Fully responsive desktop, tablet, and mobile-friendly experience across all browsers.",
-        icon: Smartphone,
-        iconColor: "text-purple-600",
-        bgColor: "bg-purple-50/80 border-purple-100",
+        title: "Works on any device",
+        description: "Responsive pages that run in current versions of Chrome, Edge, Firefox and Safari on desktop, tablet and phone.",
+        icon: Smartphone, iconColor: "text-purple-400", bgColor: "bg-purple-500/10 border-purple-500/20",
     },
 ];
 
 export default function WhyChooseUs() {
     return (
-        <section className="py-24 bg-gradient-to-b from-slate-50/50 via-white to-slate-50/50 border-b border-slate-200/60">
-            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-14">
-                {/* Header */}
-                <div className="text-center space-y-3 max-w-2xl mx-auto">
-                    <h2 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">
-                        Why Choose ProTools Hub?
-                    </h2>
-                    <p className="text-slate-500 text-sm md:text-base leading-relaxed">
-                        Everything you need in one place — fast, simple and secure.
+        <section className="border-b border-slate-800 bg-slate-950 py-24">
+            <div className="mx-auto max-w-7xl space-y-14 px-4 sm:px-6 lg:px-8">
+                <div className="mx-auto max-w-2xl space-y-3 text-center">
+                    <h2 className="text-3xl font-black tracking-tight text-white md:text-4xl">Why people use ProTools Hub</h2>
+                    <p className="text-sm leading-relaxed text-slate-400 md:text-base">
+                        Simple tools that do one job well, explained clearly and built to respect your files.
                     </p>
                 </div>
 
-                {/* Features Grid */}
                 <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-                    {FEATURES.map((feature) => {
-                        const IconComponent = feature.icon;
-                        return (
-                            <div
-                                key={feature.title}
-                                className="group flex flex-col justify-between rounded-3xl border border-slate-200/80 bg-white p-7 shadow-sm hover:border-blue-400 hover:shadow-xl hover:shadow-blue-500/5 hover:-translate-y-1 transition-all duration-300"
-                            >
-                                <div className="space-y-5">
-                                    <div
-                                        className={`flex h-14 w-14 items-center justify-center rounded-2xl border ${feature.bgColor} ${feature.iconColor} group-hover:scale-110 transition-transform duration-300 shadow-sm`}
-                                    >
-                                        <IconComponent className="h-7 w-7" />
-                                    </div>
-
-                                    <div className="space-y-2">
-                                        <h3 className="text-lg font-bold text-slate-900 group-hover:text-blue-600 transition-colors">
-                                            {feature.title}
-                                        </h3>
-                                        <p className="text-sm text-slate-500 leading-relaxed font-normal">
-                                            {feature.description}
-                                        </p>
-                                    </div>
+                    {FEATURES.map(({ title, description, icon: Icon, iconColor, bgColor }) => (
+                        <div
+                            key={title}
+                            className="group rounded-3xl border border-slate-800 bg-slate-900 p-7 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-blue-500/50 hover:shadow-xl hover:shadow-blue-500/5"
+                        >
+                            <div className="space-y-5">
+                                <div className={`flex h-14 w-14 items-center justify-center rounded-2xl border shadow-sm transition-transform duration-300 group-hover:scale-110 ${bgColor} ${iconColor}`}>
+                                    <Icon className="h-7 w-7" aria-hidden="true" />
+                                </div>
+                                <div className="space-y-2">
+                                    <h3 className="text-lg font-bold text-slate-200 transition-colors group-hover:text-blue-400">{title}</h3>
+                                    <p className="text-sm leading-relaxed text-slate-400">{description}</p>
                                 </div>
                             </div>
-                        );
-                    })}
+                        </div>
+                    ))}
                 </div>
             </div>
         </section>

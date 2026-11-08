@@ -1,33 +1,33 @@
-"use client";
+import Link from "next/link";
 
-import React from "react";
-
+// Each term opens the tool directory filtered by that search.
 const searches = [
     "PDF to Word",
     "Image Compressor",
-    "QR Code Generator",
-    "Password Generator",
-    "JSON Formatter",
-    "Age Calculator",
+    "Image Resizer",
+    "QR Code",
+    "Password",
+    "JSON",
+    "Word Counter",
+    "Markdown",
 ];
 
 export default function PopularSearches() {
     return (
         <div className="mt-10">
-            <p className="mb-4 text-xs font-bold uppercase tracking-wider text-slate-400">
-                Popular Searches
-            </p>
-
-            <div className="flex flex-wrap items-center justify-center gap-2.5">
+            <p className="mb-4 text-xs font-bold uppercase tracking-wider text-slate-400">Popular searches</p>
+            <ul className="flex flex-wrap items-center justify-center gap-2.5">
                 {searches.map((item) => (
-                    <button
-                        key={item}
-                        className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-600 shadow-sm transition-all duration-200 hover:border-blue-500 hover:bg-blue-50/50 hover:text-blue-600 hover:shadow-md cursor-pointer"
-                    >
-                        {item}
-                    </button>
+                    <li key={item}>
+                        <Link
+                            href={`/categories?q=${encodeURIComponent(item)}`}
+                            className="inline-block rounded-xl border border-slate-800 bg-slate-900 px-4 py-2 text-xs font-semibold text-slate-300 shadow-sm transition-all duration-200 hover:border-blue-500 hover:bg-blue-600/10 hover:text-blue-400"
+                        >
+                            {item}
+                        </Link>
+                    </li>
                 ))}
-            </div>
+            </ul>
         </div>
     );
 }

@@ -1,938 +1,997 @@
 "use client";
 
-import { ChangeEvent, useEffect, useRef, useState } from "react";
-import { jsPDF } from "jspdf";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import {
     Image as ImageIcon,
     Upload,
     Download,
-    RefreshCw,
     Trash2,
     CheckCircle2,
     AlertCircle,
+    AlertTriangle,
+    Info,
     Loader2,
     ShieldCheck,
     Zap,
-    Maximize2,
-    Sliders,
-    FileType,
-    Sparkles,
-    HelpCircle
+    HelpCircle,
+    Lightbulb,
+    ArrowRight,
+    Lock,
+    Link2,
+    Unlink2,
 } from "lucide-react";
 
-type OutputFormat = "jpeg" | "png" | "webp" | "pdf";
+/* ------------------------------------------------------------------ */
+/*  Types and constants                                                */
+/* ------------------------------------------------------------------ */
 
-type ImageInfo = {
+type Format = "jpeg" | "webp" | "png" | "pdf";
+type SizeMode = "quality" | "target";
+
+interface Source {
     file: File;
-    preview: string;
-    size: number;
+    url: string;
     width: number;
     height: number;
+}
+
+interface Output {
+    blob: Blob;
+    url: string | null; // preview url (not for pdf)
+    width: number;
+    height: number;
+    quality: number | null;
+    format: Format;
+    notes: string[];
+}
+
+interface Status {
+    kind: "info" | "success" | "warn" | "error";
+    text: string;
+}
+
+const MAX_FILE_BYTES = 20 * 1024 * 1024;
+const MAX_SIDE = 10000;
+const MAX_PIXELS = 50_000_000;
+
+const FORMATS: { id: Format; label: string; mime: string; ext: string; note: string }[] = [
+    { id: "jpeg", label: "JPEG", mime: "image/jpeg", ext: "jpg", note: "Best for photos" },
+    { id: "webp", label: "WebP", mime: "image/webp", ext: "webp", note: "Smaller than JPEG" },
+    { id: "png", label: "PNG", mime: "image/png", ext: "png", note: "Lossless, keeps transparency" },
+    { id: "pdf", label: "PDF", mime: "application/pdf", ext: "pdf", note: "One image on an A4 page" },
+];
+
+const formatSize = (bytes: number) => {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
 };
 
+const toBlob = (canvas: HTMLCanvasElement, type: string, quality?: number) =>
+    new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, type, quality));
+
+const loadBitmap = async (url: string): Promise<ImageBitmap | HTMLImageElement> => {
+    const res = await fetch(url);
+    const blob = await res.blob();
+    if (typeof createImageBitmap === "function") {
+        try {
+            // applies the photo's EXIF rotation so phone pictures are not sideways
+            return await createImageBitmap(blob, { imageOrientation: "from-image" });
+        } catch {
+            /* fall back to <img> */
+        }
+    }
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = () => reject(new Error("LOAD"));
+        img.src = url;
+    });
+};
+
+/* ------------------------------------------------------------------ */
+/*  Static content                                                     */
+/* ------------------------------------------------------------------ */
+
+const FAQS: { q: string; a: string }[] = [
+    {
+        q: "Are my images uploaded anywhere?",
+        a: "No. Your image is opened and re-encoded by your browser using the HTML Canvas API. It never leaves your device and nothing is stored. You can confirm this in your browser's network tab, or use the tool with your internet connection switched off once the page has loaded.",
+    },
+    {
+        q: "Which format should I choose?",
+        a: "Use JPEG for photographs, WebP when you want the smallest file and your audience uses modern browsers, and PNG for screenshots, logos and graphics with sharp edges or transparency. Choose PDF when you need to attach a picture as a document. Converting a photo to PNG often makes it larger, not smaller, because PNG is lossless.",
+    },
+    {
+        q: "What does the quality slider do?",
+        a: "For JPEG and WebP it controls how aggressively the picture is compressed. Lower values give smaller files with visible artefacts such as blockiness around edges. For most photos, 70 to 85% is hard to tell from the original. PNG ignores the slider because it is lossless; shrink a PNG by reducing its dimensions instead.",
+    },
+    {
+        q: "How does the target file size option work?",
+        a: "You enter a size such as 200 KB and the tool tries different quality levels until the result fits. If the lowest acceptable quality is still too large, it gradually reduces the dimensions as well. Hitting an exact size is not guaranteed for every image, and the result tells you what was achieved.",
+    },
+    {
+        q: "Will compression remove metadata such as location?",
+        a: "Yes. Because the image is redrawn on a canvas and saved again, EXIF information such as GPS location, camera model and timestamps is not copied into the result. This is a useful privacy benefit when you share photos online. The picture's rotation is applied before saving so it still displays upright.",
+    },
+    {
+        q: "Why did my file get bigger?",
+        a: "This usually happens when the original was already well compressed and you choose a higher quality, or when you convert a JPEG to PNG. We warn you when the result is larger than the original. Lower the quality, choose JPEG or WebP, or reduce the dimensions.",
+    },
+    {
+        q: "Does it support transparent images?",
+        a: "PNG and WebP keep transparency. JPEG and PDF cannot store it, so transparent areas are filled with white. If a WebP file comes out as PNG, your browser does not support WebP encoding.",
+    },
+    {
+        q: "What are the limits?",
+        a: "Images up to 20 MB and 10,000 pixels on the longest side are accepted. Very large pictures may take a few seconds and use a lot of memory on older phones. For huge images, reduce the dimensions first.",
+    },
+];
+
+const FORMAT_ROWS: [string, string, string, string][] = [
+    ["JPEG", "Photos, social media, email", "Lossy", "No"],
+    ["WebP", "Websites, apps, smaller photos", "Lossy (or lossless)", "Yes"],
+    ["PNG", "Screenshots, logos, diagrams", "Lossless", "Yes"],
+    ["PDF", "Attaching a picture as a document", "Uses JPEG inside", "No"],
+];
+
+const QUALITY_ROWS: [string, string, string][] = [
+    ["90 to 100%", "Visually identical", "Large files; only for printing or archiving"],
+    ["70 to 85%", "Very hard to distinguish", "Best everyday range for photos"],
+    ["50 to 65%", "Slight softness on close inspection", "Good for web thumbnails and email"],
+    ["Below 50%", "Visible blocks and colour banding", "Only when size matters more than looks"],
+];
+
+const TIPS: string[] = [
+    "Resize first. Cutting a 4000 px photo to 1600 px saves far more than lowering quality, and most screens cannot show more.",
+    "Use the target size option for upload forms that demand a limit such as 100 KB or 500 KB.",
+    "Keep your original. Compression is lossy, so you cannot recover detail from the compressed copy.",
+    "Use PNG only when you need transparency or crisp text. For photos, JPEG or WebP is much smaller.",
+    "Compare the before and after at 100% zoom on a detailed area such as hair, text or foliage.",
+    "For websites, serve WebP with a JPEG fallback to get the best size without excluding older browsers.",
+];
+
+/* ------------------------------------------------------------------ */
+/*  Component                                                          */
+/* ------------------------------------------------------------------ */
+
+const card = "rounded-3xl border border-slate-800 bg-slate-900/60 p-6 md:p-8";
+const fieldLabel = "text-xs font-bold uppercase tracking-wider text-slate-400";
+const input =
+    "w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 py-2.5 text-sm font-semibold text-slate-100 focus:border-cyan-500/60 focus:outline-none focus:ring-2 focus:ring-cyan-500/20";
+
 export default function ImageCompressor() {
-    const [image, setImage] = useState<ImageInfo | null>(null);
+    const [src, setSrc] = useState<Source | null>(null);
+    const [out, setOut] = useState<Output | null>(null);
+    const [busy, setBusy] = useState(false);
+    const [status, setStatus] = useState<Status | null>(null);
+    const [dragging, setDragging] = useState(false);
 
-    const [quality, setQuality] = useState(0.75);
-    const [outputFormat, setOutputFormat] = useState<OutputFormat>("jpeg");
-
+    const [format, setFormat] = useState<Format>("jpeg");
+    const [quality, setQuality] = useState(75);
+    const [sizeMode, setSizeMode] = useState<SizeMode>("quality");
+    const [targetKb, setTargetKb] = useState("200");
     const [width, setWidth] = useState("");
     const [height, setHeight] = useState("");
-    const [keepAspectRatio, setKeepAspectRatio] = useState(true);
+    const [lock, setLock] = useState(true);
 
-    const [compressedUrl, setCompressedUrl] = useState("");
-    const [compressedSize, setCompressedSize] = useState(0);
-    const [compressedWidth, setCompressedWidth] = useState(0);
-    const [compressedHeight, setCompressedHeight] = useState(0);
+    const inputRef = useRef<HTMLInputElement>(null);
+    const srcUrlRef = useRef<string | null>(null);
+    const outUrlRef = useRef<string | null>(null);
 
-    const [compressing, setCompressing] = useState(false);
-    const [error, setError] = useState("");
+    useEffect(
+        () => () => {
+            if (srcUrlRef.current) URL.revokeObjectURL(srcUrlRef.current);
+            if (outUrlRef.current) URL.revokeObjectURL(outUrlRef.current);
+        },
+        []
+    );
 
-    const fileInputRef = useRef<HTMLInputElement>(null);
-    const imageUrlRef = useRef<string | null>(null);
-    const resultUrlRef = useRef<string | null>(null);
-
-    useEffect(() => {
-        return () => {
-            if (imageUrlRef.current) {
-                URL.revokeObjectURL(imageUrlRef.current);
-            }
-
-            if (resultUrlRef.current) {
-                URL.revokeObjectURL(resultUrlRef.current);
-            }
-        };
+    const clearOutput = useCallback(() => {
+        if (outUrlRef.current) {
+            URL.revokeObjectURL(outUrlRef.current);
+            outUrlRef.current = null;
+        }
+        setOut(null);
     }, []);
 
-    const clearResult = () => {
-        if (resultUrlRef.current) {
-            URL.revokeObjectURL(resultUrlRef.current);
-            resultUrlRef.current = null;
+    const reset = useCallback(() => {
+        if (srcUrlRef.current) {
+            URL.revokeObjectURL(srcUrlRef.current);
+            srcUrlRef.current = null;
         }
-
-        setCompressedUrl("");
-        setCompressedSize(0);
-        setCompressedWidth(0);
-        setCompressedHeight(0);
-    };
-
-    const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
-        const file = event.target.files?.[0];
-
-        setError("");
-        clearResult();
-
-        if (!file) {
-            return;
-        }
-
-        if (!file.type.startsWith("image/")) {
-            setError("Please select a valid image file.");
-            event.target.value = "";
-            return;
-        }
-
-        if (file.size > 20 * 1024 * 1024) {
-            setError("Please select an image smaller than 20 MB.");
-            event.target.value = "";
-            return;
-        }
-
-        if (imageUrlRef.current) {
-            URL.revokeObjectURL(imageUrlRef.current);
-        }
-
-        const preview = URL.createObjectURL(file);
-        imageUrlRef.current = preview;
-
-        const img = new Image();
-
-        img.onload = () => {
-            setImage({
-                file,
-                preview,
-                size: file.size,
-                width: img.width,
-                height: img.height,
-            });
-
-            setWidth(String(img.width));
-            setHeight(String(img.height));
-            setError("");
-        };
-
-        img.onerror = () => {
-            URL.revokeObjectURL(preview);
-            imageUrlRef.current = null;
-            setError("Unable to read this image.");
-        };
-
-        img.src = preview;
-    };
-
-    const handleWidthChange = (value: string) => {
-        setWidth(value);
-
-        if (!keepAspectRatio || !image) {
-            return;
-        }
-
-        const newWidth = Number(value);
-
-        if (!newWidth || newWidth <= 0) {
-            return;
-        }
-
-        const newHeight = Math.round((newWidth / image.width) * image.height);
-
-        setHeight(String(newHeight));
-    };
-
-    const handleHeightChange = (value: string) => {
-        setHeight(value);
-
-        if (!keepAspectRatio || !image) {
-            return;
-        }
-
-        const newHeight = Number(value);
-
-        if (!newHeight || newHeight <= 0) {
-            return;
-        }
-
-        const newWidth = Math.round((newHeight / image.height) * image.width);
-
-        setWidth(String(newWidth));
-    };
-
-    const getMimeType = () => {
-        if (outputFormat === "png") {
-            return "image/png";
-        }
-
-        if (outputFormat === "webp") {
-            return "image/webp";
-        }
-
-        return "image/jpeg";
-    };
-
-    const getExtension = () => {
-        if (outputFormat === "pdf") {
-            return "pdf";
-        }
-
-        if (outputFormat === "png") {
-            return "png";
-        }
-
-        if (outputFormat === "webp") {
-            return "webp";
-        }
-
-        return "jpg";
-    };
-
-    const blobToDataUrl = (blob: Blob): Promise<string> => {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-
-            reader.onloadend = () => {
-                if (typeof reader.result === "string") {
-                    resolve(reader.result);
-                } else {
-                    reject(new Error("Unable to create image data."));
-                }
-            };
-
-            reader.onerror = () => {
-                reject(new Error("Unable to read image data."));
-            };
-
-            reader.readAsDataURL(blob);
-        });
-    };
-
-    const createPdf = async (
-        imageBlob: Blob,
-        imageWidth: number,
-        imageHeight: number
-    ) => {
-        const imageDataUrl = await blobToDataUrl(imageBlob);
-
-        const pdf = new jsPDF({
-            orientation:
-                imageWidth >= imageHeight ? "landscape" : "portrait",
-            unit: "mm",
-            format: "a4",
-            compress: true,
-        });
-
-        const pageWidth = pdf.internal.pageSize.getWidth();
-        const pageHeight = pdf.internal.pageSize.getHeight();
-
-        const margin = 10;
-
-        const maxWidth = pageWidth - margin * 2;
-        const maxHeight = pageHeight - margin * 2;
-
-        const imageRatio = imageWidth / imageHeight;
-        const pageRatio = maxWidth / maxHeight;
-
-        let pdfWidth: number;
-        let pdfHeight: number;
-
-        if (imageRatio > pageRatio) {
-            pdfWidth = maxWidth;
-            pdfHeight = pdfWidth / imageRatio;
-        } else {
-            pdfHeight = maxHeight;
-            pdfWidth = pdfHeight * imageRatio;
-        }
-
-        const x = (pageWidth - pdfWidth) / 2;
-        const y = (pageHeight - pdfHeight) / 2;
-
-        pdf.addImage(
-            imageDataUrl,
-            "JPEG",
-            x,
-            y,
-            pdfWidth,
-            pdfHeight,
-            undefined,
-            "FAST"
-        );
-
-        const pdfArrayBuffer = pdf.output("arraybuffer");
-
-        return new Blob([pdfArrayBuffer], {
-            type: "application/pdf",
-        });
-    };
-
-    const downloadImage = () => {
-        if (!compressedUrl) {
-            return;
-        }
-
-        const link = document.createElement("a");
-
-        link.href = compressedUrl;
-
-        link.download = `protools-${outputFormat}-image.${getExtension()}`;
-
-        document.body.appendChild(link);
-
-        link.click();
-
-        link.remove();
-    };
-
-    const compressImage = async () => {
-        if (!image) {
-            return;
-        }
-
-        const newWidth = Number(width);
-        const newHeight = Number(height);
-
-        if (
-            !Number.isFinite(newWidth) ||
-            !Number.isFinite(newHeight) ||
-            newWidth <= 0 ||
-            newHeight <= 0
-        ) {
-            setError("Please enter a valid width and height.");
-            return;
-        }
-
-        if (newWidth > 10000 || newHeight > 10000) {
-            setError(
-                "Maximum supported dimension is 10,000 × 10,000 pixels."
-            );
-            return;
-        }
-
-        setCompressing(true);
-        setError("");
-
-        try {
-            const img = new Image();
-
-            img.src = image.preview;
-
-            await new Promise<void>((resolve, reject) => {
-                img.onload = () => resolve();
-
-                img.onerror = () =>
-                    reject(new Error("Image could not be loaded."));
-            });
-
-            const canvas = document.createElement("canvas");
-
-            canvas.width = newWidth;
-            canvas.height = newHeight;
-
-            const context = canvas.getContext("2d");
-
-            if (!context) {
-                throw new Error("Canvas is not supported by this browser.");
-            }
-
-            context.imageSmoothingEnabled = true;
-            context.imageSmoothingQuality = "high";
-
-            if (outputFormat === "jpeg") {
-                context.fillStyle = "#ffffff";
-
-                context.fillRect(0, 0, newWidth, newHeight);
-            }
-
-            context.drawImage(img, 0, 0, newWidth, newHeight);
-
-            let finalBlob: Blob;
-
-            if (outputFormat === "pdf") {
-                const jpegBlob = await new Promise<Blob | null>((resolve) => {
-                    canvas.toBlob(
-                        (result) => resolve(result),
-                        "image/jpeg",
-                        quality
-                    );
-                });
-
-                if (!jpegBlob) {
-                    throw new Error("Unable to create the JPEG image.");
-                }
-
-                finalBlob = await createPdf(jpegBlob, newWidth, newHeight);
-            } else {
-                const mimeType = getMimeType();
-
-                const processedBlob = await new Promise<Blob | null>(
-                    (resolve) => {
-                        canvas.toBlob(
-                            (result) => resolve(result),
-                            mimeType,
-                            outputFormat === "png" ? undefined : quality
-                        );
-                    }
-                );
-
-                if (!processedBlob) {
-                    throw new Error("Unable to create the processed image.");
-                }
-
-                finalBlob = processedBlob;
-            }
-
-            clearResult();
-
-            const resultUrl = URL.createObjectURL(finalBlob);
-
-            resultUrlRef.current = resultUrl;
-
-            setCompressedUrl(resultUrl);
-            setCompressedSize(finalBlob.size);
-            setCompressedWidth(newWidth);
-            setCompressedHeight(newHeight);
-        } catch (processingError) {
-            console.error("Image processing error:", processingError);
-
-            setError(
-                "Something went wrong while processing the image. Please try again."
-            );
-        } finally {
-            setCompressing(false);
-        }
-    };
-
-    const resetTool = () => {
-        if (imageUrlRef.current) {
-            URL.revokeObjectURL(imageUrlRef.current);
-            imageUrlRef.current = null;
-        }
-
-        clearResult();
-
-        setImage(null);
-        setQuality(0.75);
-        setOutputFormat("jpeg");
+        clearOutput();
+        setSrc(null);
+        setStatus(null);
         setWidth("");
         setHeight("");
-        setKeepAspectRatio(true);
-        setError("");
+        if (inputRef.current) inputRef.current.value = "";
+    }, [clearOutput]);
 
-        if (fileInputRef.current) {
-            fileInputRef.current.value = "";
+    const acceptFile = useCallback(
+        (file: File | undefined | null) => {
+            if (!file) return;
+            clearOutput();
+            setStatus(null);
+
+            if (!file.type.startsWith("image/")) {
+                setStatus({ kind: "error", text: "Please choose an image file (JPG, PNG, WebP, GIF or BMP)." });
+                return;
+            }
+            if (file.size > MAX_FILE_BYTES) {
+                setStatus({ kind: "warn", text: `This image is ${formatSize(file.size)}. Please choose one smaller than 20 MB.` });
+                return;
+            }
+
+            const url = URL.createObjectURL(file);
+            const img = new Image();
+            img.onload = () => {
+                if (srcUrlRef.current) URL.revokeObjectURL(srcUrlRef.current);
+                srcUrlRef.current = url;
+                setSrc({ file, url, width: img.naturalWidth, height: img.naturalHeight });
+                setWidth(String(img.naturalWidth));
+                setHeight(String(img.naturalHeight));
+                // photos default to JPEG, everything else keeps its own type when possible
+                setFormat(file.type === "image/png" ? "png" : file.type === "image/webp" ? "webp" : "jpeg");
+            };
+            img.onerror = () => {
+                URL.revokeObjectURL(url);
+                setStatus({ kind: "error", text: "This image could not be read. It may be damaged or in an unsupported format." });
+            };
+            img.src = url;
+        },
+        [clearOutput]
+    );
+
+    const onDrop = (e: React.DragEvent) => {
+        e.preventDefault();
+        setDragging(false);
+        if (!busy) acceptFile(e.dataTransfer.files?.[0]);
+    };
+
+    const setW = (v: string) => {
+        setWidth(v);
+        const n = Number(v);
+        if (lock && src && n > 0) setHeight(String(Math.round((n / src.width) * src.height)));
+    };
+    const setH = (v: string) => {
+        setHeight(v);
+        const n = Number(v);
+        if (lock && src && n > 0) setWidth(String(Math.round((n / src.height) * src.width)));
+    };
+    const applyScale = (pct: number) => {
+        if (!src) return;
+        setWidth(String(Math.max(1, Math.round((src.width * pct) / 100))));
+        setHeight(String(Math.max(1, Math.round((src.height * pct) / 100))));
+    };
+
+    /* ------------------------------ Compress ----------------------------- */
+
+    const run = async () => {
+        if (!src || busy) return;
+
+        const w = Math.round(Number(width));
+        const h = Math.round(Number(height));
+        if (!Number.isFinite(w) || !Number.isFinite(h) || w < 1 || h < 1) {
+            setStatus({ kind: "error", text: "Please enter a valid width and height." });
+            return;
+        }
+        if (w > MAX_SIDE || h > MAX_SIDE || w * h > MAX_PIXELS) {
+            setStatus({
+                kind: "error",
+                text: "That size is too large for the browser to process safely. Keep each side under 10,000 px and the total under 50 megapixels.",
+            });
+            return;
+        }
+        const target = Number(targetKb);
+        if (sizeMode === "target" && format !== "png" && (!Number.isFinite(target) || target < 5)) {
+            setStatus({ kind: "error", text: "Enter a target size of at least 5 KB." });
+            return;
+        }
+
+        setBusy(true);
+        setStatus({ kind: "info", text: "Processing your image…" });
+        clearOutput();
+
+        try {
+            const bmp = await loadBitmap(src.url);
+
+            const render = (cw: number, ch: number) => {
+                const canvas = document.createElement("canvas");
+                canvas.width = cw;
+                canvas.height = ch;
+                const ctx = canvas.getContext("2d");
+                if (!ctx) throw new Error("CANVAS");
+                ctx.imageSmoothingEnabled = true;
+                ctx.imageSmoothingQuality = "high";
+                // JPEG and PDF cannot store transparency, so paint white behind the picture
+                if (format === "jpeg" || format === "pdf") {
+                    ctx.fillStyle = "#ffffff";
+                    ctx.fillRect(0, 0, cw, ch);
+                }
+                ctx.drawImage(bmp, 0, 0, cw, ch);
+                return canvas;
+            };
+
+            const notes: string[] = [];
+            const lossy = format === "jpeg" || format === "webp" || format === "pdf";
+            const mime = format === "pdf" ? "image/jpeg" : FORMATS.find((f) => f.id === format)!.mime;
+
+            let cw = w;
+            let ch = h;
+            let canvas = render(cw, ch);
+            let q = quality / 100;
+            let blob: Blob | null;
+
+            if (sizeMode === "target" && lossy) {
+                const limit = target * 1024;
+                // binary search the highest quality that fits
+                let lo = 0.1;
+                let hi = 0.95;
+                let best: Blob | null = null;
+                let bestQ = lo;
+                for (let step = 0; step < 4; step++) {
+                    // after each failed round of quality, shrink the picture a little
+                    for (let i = 0; i < 7; i++) {
+                        const mid = (lo + hi) / 2;
+                        const b = await toBlob(canvas, mime, mid);
+                        if (!b) throw new Error("ENCODE");
+                        if (b.size <= limit) {
+                            best = b;
+                            bestQ = mid;
+                            lo = mid;
+                        } else hi = mid;
+                    }
+                    if (best) break;
+                    cw = Math.max(1, Math.round(cw * 0.8));
+                    ch = Math.max(1, Math.round(ch * 0.8));
+                    canvas = render(cw, ch);
+                    lo = 0.1;
+                    hi = 0.95;
+                }
+                if (!best) {
+                    best = await toBlob(canvas, mime, 0.1);
+                    bestQ = 0.1;
+                    notes.push("Could not reach the target size even at the lowest quality and a reduced size.");
+                } else if (cw !== w) {
+                    notes.push(`To reach the target, the image was also reduced to ${cw} × ${ch} px.`);
+                }
+                blob = best;
+                q = bestQ;
+            } else {
+                blob = await toBlob(canvas, mime, format === "png" ? undefined : q);
+            }
+
+            if (!blob) throw new Error("ENCODE");
+
+            if (format === "webp" && blob.type !== "image/webp") {
+                notes.push("Your browser cannot save WebP, so a PNG was created instead. Try JPEG or another browser.");
+            }
+
+            let finalBlob = blob;
+            let finalFormat = format;
+            if (format === "pdf") {
+                const { jsPDF } = await import("jspdf");
+                const dataUrl: string = await new Promise((resolve, reject) => {
+                    const r = new FileReader();
+                    r.onload = () => resolve(String(r.result));
+                    r.onerror = () => reject(new Error("READ"));
+                    r.readAsDataURL(blob as Blob);
+                });
+                const pdf = new jsPDF({ orientation: cw >= ch ? "landscape" : "portrait", unit: "mm", format: "a4", compress: true });
+                const pw = pdf.internal.pageSize.getWidth();
+                const ph = pdf.internal.pageSize.getHeight();
+                const m = 10;
+                const maxW = pw - m * 2;
+                const maxH = ph - m * 2;
+                const ratio = cw / ch;
+                let dw = maxW;
+                let dh = dw / ratio;
+                if (dh > maxH) {
+                    dh = maxH;
+                    dw = dh * ratio;
+                }
+                pdf.addImage(dataUrl, "JPEG", (pw - dw) / 2, (ph - dh) / 2, dw, dh, undefined, "FAST");
+                finalBlob = new Blob([pdf.output("arraybuffer")], { type: "application/pdf" });
+            } else if (format === "webp" && blob.type !== "image/webp") {
+                finalFormat = "png";
+            }
+
+            if ("close" in bmp) bmp.close();
+
+            const url = finalFormat === "pdf" ? null : URL.createObjectURL(finalBlob);
+            outUrlRef.current = url;
+            setOut({ blob: finalBlob, url, width: cw, height: ch, quality: lossy ? q : null, format: finalFormat, notes });
+
+            if (finalBlob.size >= src.file.size) {
+                setStatus({
+                    kind: "warn",
+                    text: `The result (${formatSize(finalBlob.size)}) is not smaller than your original (${formatSize(src.file.size)}). Try a lower quality, JPEG or WebP, or smaller dimensions.`,
+                });
+            } else {
+                const pct = ((src.file.size - finalBlob.size) / src.file.size) * 100;
+                setStatus({ kind: "success", text: `Done. Your image is ${pct.toFixed(1)}% smaller.` });
+            }
+        } catch (err) {
+            console.error("Image compression error:", err);
+            const msg = err instanceof Error ? err.message : "";
+            setStatus({
+                kind: "error",
+                text:
+                    msg === "LOAD"
+                        ? "This image could not be decoded. Try a different file."
+                        : "Something went wrong while processing the image. Try smaller dimensions or another format.",
+            });
+        } finally {
+            setBusy(false);
         }
     };
 
-    const formatSize = (bytes: number) => {
-        if (bytes < 1024) {
-            return `${bytes} B`;
-        }
-
-        if (bytes < 1024 * 1024) {
-            return `${(bytes / 1024).toFixed(1)} KB`;
-        }
-
-        return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
+    const download = () => {
+        if (!out || !src) return;
+        const ext = FORMATS.find((f) => f.id === out.format)!.ext;
+        const base = src.file.name.replace(/\.[^.]+$/, "");
+        const url = URL.createObjectURL(out.blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `${base}-compressed.${ext}`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 1500);
     };
 
-    const savedBytes =
-        image && compressedSize
-            ? Math.max(0, image.size - compressedSize)
-            : 0;
+    /* ------------------------------ Render -------------------------------- */
 
-    const compressionPercentage =
-        image && compressedSize
-            ? Math.max(
-                0,
-                Math.round(((image.size - compressedSize) / image.size) * 100)
-            )
-            : 0;
+    const savedPct = src && out ? Math.max(0, ((src.file.size - out.blob.size) / src.file.size) * 100) : 0;
+    const isLossy = format !== "png";
+
+    const jsonLd = useMemo(
+        () =>
+            JSON.stringify({
+                "@context": "https://schema.org",
+                "@type": "FAQPage",
+                mainEntity: FAQS.map((f) => ({
+                    "@type": "Question",
+                    name: f.q,
+                    acceptedAnswer: { "@type": "Answer", text: f.a },
+                })),
+            }).replace(/</g, "\\u003c"),
+        []
+    );
+
+    const statusStyles: Record<Status["kind"], string> = {
+        info: "border-slate-700 bg-slate-800/60 text-slate-200",
+        success: "border-emerald-500/30 bg-emerald-500/10 text-emerald-200",
+        warn: "border-amber-500/30 bg-amber-500/10 text-amber-200",
+        error: "border-rose-500/30 bg-rose-500/10 text-rose-200",
+    };
+    const StatusIcon = status ? { info: Info, success: CheckCircle2, warn: AlertCircle, error: AlertCircle }[status.kind] : Info;
 
     return (
-        <div className="w-full max-w-5xl mx-auto space-y-8">
-            <div className="rounded-3xl border border-slate-200/80 bg-white p-6 md:p-8 shadow-xl shadow-slate-200/40">
-                {/* Header */}
-                <div className="flex items-center justify-between border-b border-slate-100 pb-6 mb-6">
+        <div className="mx-auto w-full max-w-6xl space-y-8 p-4 md:p-8">
+            <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd }} />
+
+            {/* ---------------- Tool ---------------- */}
+            <div className={`${card} shadow-xl shadow-black/20`}>
+                <div className="mb-6 flex flex-wrap items-center justify-between gap-4 border-b border-slate-800 pb-6">
                     <div className="flex items-center gap-3">
-                        <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600 border border-emerald-100">
+                        <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-emerald-500/20 bg-emerald-500/10 text-emerald-400">
                             <ImageIcon className="h-6 w-6" />
                         </div>
                         <div>
-                            <h3 className="text-xl font-bold text-slate-900">
-                                Smart Image Compressor & Converter
-                            </h3>
-                            <p className="text-xs text-slate-500">
-                                Compress, resize, and convert images locally without server uploads.
-                            </p>
+                            <h2 className="text-xl font-bold text-slate-100">Image Compressor &amp; Converter</h2>
+                            <p className="text-xs text-slate-400">Reduce image file size, resize and convert to JPEG, WebP, PNG or PDF.</p>
                         </div>
+                    </div>
+                    <div className="flex items-center gap-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1 text-[11px] font-semibold text-emerald-300">
+                        <Lock className="h-3.5 w-3.5" />
+                        Images never leave your device
                     </div>
                 </div>
 
-                {/* Error Message */}
-                {error && (
-                    <div className="mb-6 flex items-center gap-3 rounded-2xl bg-rose-50 border border-rose-200 p-4 text-xs font-medium text-rose-700">
-                        <AlertCircle className="h-5 w-5 text-rose-500 shrink-0" />
-                        <span>{error}</span>
-                    </div>
-                )}
-
-                {!image ? (
-                    <label
-                        htmlFor="image-upload"
-                        className="group block cursor-pointer"
+                {!src ? (
+                    <div
+                        onDragOver={(e) => {
+                            e.preventDefault();
+                            setDragging(true);
+                        }}
+                        onDragLeave={() => setDragging(false)}
+                        onDrop={onDrop}
+                        className={`rounded-3xl border-2 border-dashed p-8 text-center transition sm:p-12 ${dragging ? "border-cyan-400 bg-cyan-500/10" : "border-slate-700 bg-slate-950/50 hover:border-slate-600"
+                            }`}
                     >
-                        <div className="rounded-3xl border-2 border-dashed border-slate-200 bg-slate-50/50 p-10 text-center hover:border-blue-400 hover:bg-blue-50/20 transition sm:p-12">
-                            <div className="flex flex-col items-center">
-                                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white shadow-md border border-slate-100 text-blue-600 mb-4 group-hover:scale-105 transition-transform">
-                                    <Upload className="h-8 w-8" />
-                                </div>
-
-                                <h2 className="text-lg font-bold text-slate-900">
-                                    Upload an Image
-                                </h2>
-
-                                <p className="mt-1 max-w-md text-xs text-slate-500 leading-relaxed">
-                                    Select an image from your device to compress, resize, or convert formats securely.
-                                </p>
-
-                                <span className="mt-6 inline-flex items-center gap-2 rounded-xl bg-blue-600 px-6 py-3 text-xs font-bold text-white shadow-md shadow-blue-500/20 group-hover:bg-blue-700 transition">
-                                    <Upload className="h-4 w-4" />
-                                    Choose Image File
-                                </span>
-
-                                <p className="mt-4 text-[11px] text-slate-400">
-                                    JPG, PNG, WebP, GIF, BMP • Max File Size: 20 MB
-                                </p>
-
+                        <div className="flex flex-col items-center">
+                            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl border border-slate-800 bg-slate-900 text-cyan-300">
+                                <Upload className="h-8 w-8" />
+                            </div>
+                            <h3 className="text-lg font-bold text-slate-100">{dragging ? "Drop your image here" : "Choose or drop an image"}</h3>
+                            <p className="mt-1 max-w-md text-xs leading-relaxed text-slate-400">
+                                JPG, PNG, WebP, GIF or BMP, up to 20 MB. Processed entirely in your browser.
+                            </p>
+                            <label className="mt-5 inline-flex cursor-pointer items-center gap-2 rounded-xl bg-cyan-500 px-6 py-3 text-xs font-bold text-slate-950 transition hover:bg-cyan-400">
+                                <Upload className="h-4 w-4" />
+                                Choose image
                                 <input
-                                    id="image-upload"
-                                    ref={fileInputRef}
+                                    ref={inputRef}
                                     type="file"
                                     accept="image/*"
-                                    onChange={handleFileChange}
+                                    onChange={(e) => acceptFile(e.target.files?.[0])}
                                     className="hidden"
                                 />
-                            </div>
+                            </label>
                         </div>
-                    </label>
+                    </div>
                 ) : (
-                    <div className="space-y-8">
-                        {/* Selected File Header & Reset */}
-                        <div className="flex items-center justify-between border-b border-slate-200/60 pb-4">
-                            <div className="flex items-center gap-3">
-                                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-700">
-                                    <ImageIcon className="h-5 w-5" />
-                                </div>
-                                <div>
-                                    <p className="font-bold text-slate-900 text-sm break-all">
-                                        {image.file.name}
-                                    </p>
-                                    <p className="text-xs text-slate-500 mt-0.5">
-                                        {formatSize(image.size)} • {image.width} × {image.height} px
+                    <div className="space-y-6">
+                        {/* File bar */}
+                        <div className="flex flex-col gap-3 rounded-2xl border border-slate-800 bg-slate-950/50 p-4 sm:flex-row sm:items-center sm:justify-between">
+                            <div className="flex min-w-0 items-center gap-3">
+                                <img src={src.url} alt="" className="h-12 w-12 shrink-0 rounded-lg border border-slate-800 object-cover" />
+                                <div className="min-w-0">
+                                    <p className="truncate text-sm font-bold text-slate-100">{src.file.name}</p>
+                                    <p className="text-xs text-slate-400">
+                                        {formatSize(src.file.size)} · {src.width} × {src.height} px
                                     </p>
                                 </div>
                             </div>
-
                             <button
                                 type="button"
-                                onClick={resetTool}
-                                disabled={compressing}
-                                className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-bold text-rose-600 hover:bg-rose-50 transition disabled:opacity-50"
+                                onClick={reset}
+                                disabled={busy}
+                                className="inline-flex items-center gap-1.5 self-start rounded-xl border border-slate-700 px-4 py-2 text-xs font-bold text-rose-300 transition hover:bg-rose-500/10 disabled:opacity-50 sm:self-auto"
                             >
                                 <Trash2 className="h-4 w-4" />
-                                Choose Another
+                                Choose another
                             </button>
                         </div>
 
-                        {/* Image Preview Box */}
-                        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-slate-50">
-                            <div className="flex items-center justify-between border-b border-slate-200 bg-white px-4 py-3 text-xs">
-                                <span className="font-bold text-slate-800">Source Image Preview</span>
-                                <span className="rounded-md bg-slate-100 px-2.5 py-1 font-semibold text-slate-600">
-                                    {image.width} × {image.height}
-                                </span>
-                            </div>
-
-                            <div className="flex min-h-64 items-center justify-center bg-slate-100/50 p-6 sm:min-h-72">
-                                <img
-                                    src={image.preview}
-                                    alt="Selected preview"
-                                    className="max-h-[22rem] max-w-full rounded-xl object-contain shadow-sm border border-slate-200/60"
-                                />
-                            </div>
-                        </div>
-
-                        {/* Options Grid: Resize & Formats & Quality */}
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                            {/* 1. Resize Settings Card */}
-                            <div className="rounded-2xl border border-slate-200/80 bg-slate-50/50 p-5 space-y-4">
-                                <div className="flex items-center gap-2 border-b border-slate-200/60 pb-3">
-                                    <Maximize2 className="h-4 w-4 text-blue-600" />
-                                    <h3 className="text-xs font-bold uppercase tracking-wider text-slate-800">
-                                        Resize Dimensions
-                                    </h3>
+                        <div className="grid gap-6 lg:grid-cols-2">
+                            {/* Format + quality */}
+                            <div className="space-y-5 rounded-2xl border border-slate-800 bg-slate-950/50 p-5">
+                                <div>
+                                    <div className={`${fieldLabel} mb-2`}>Output format</div>
+                                    <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                                        {FORMATS.map((f) => (
+                                            <button
+                                                key={f.id}
+                                                type="button"
+                                                aria-pressed={format === f.id}
+                                                onClick={() => {
+                                                    setFormat(f.id);
+                                                    clearOutput();
+                                                    setStatus(null);
+                                                }}
+                                                className={`rounded-xl border px-2 py-2.5 text-xs font-bold transition ${format === f.id
+                                                    ? "border-cyan-500 bg-cyan-500/10 text-cyan-300"
+                                                    : "border-slate-800 bg-slate-900 text-slate-300 hover:border-slate-700"
+                                                    }`}
+                                            >
+                                                {f.label}
+                                            </button>
+                                        ))}
+                                    </div>
+                                    <p className="mt-2 text-[11px] text-slate-500">{FORMATS.find((f) => f.id === format)?.note}</p>
                                 </div>
 
+                                {isLossy ? (
+                                    <div className="space-y-3">
+                                        <div role="tablist" className="inline-flex rounded-xl border border-slate-800 bg-slate-950 p-1">
+                                            {(
+                                                [
+                                                    ["quality", "Set quality"],
+                                                    ["target", "Target file size"],
+                                                ] as const
+                                            ).map(([id, label]) => (
+                                                <button
+                                                    key={id}
+                                                    type="button"
+                                                    role="tab"
+                                                    aria-selected={sizeMode === id}
+                                                    onClick={() => setSizeMode(id)}
+                                                    className={`rounded-lg px-3.5 py-1.5 text-xs font-bold transition ${sizeMode === id ? "bg-cyan-500 text-slate-950" : "text-slate-400 hover:text-slate-200"
+                                                        }`}
+                                                >
+                                                    {label}
+                                                </button>
+                                            ))}
+                                        </div>
+
+                                        {sizeMode === "quality" ? (
+                                            <div>
+                                                <div className="mb-2 flex items-center justify-between">
+                                                    <label htmlFor="ic-quality" className={fieldLabel}>
+                                                        Quality
+                                                    </label>
+                                                    <span className="rounded-lg border border-cyan-500/20 bg-cyan-500/10 px-2.5 py-0.5 text-xs font-extrabold text-cyan-300">
+                                                        {quality}%
+                                                    </span>
+                                                </div>
+                                                <input
+                                                    id="ic-quality"
+                                                    type="range"
+                                                    min={10}
+                                                    max={100}
+                                                    step={5}
+                                                    value={quality}
+                                                    onChange={(e) => setQuality(Number(e.target.value))}
+                                                    className="w-full cursor-pointer accent-cyan-500"
+                                                />
+                                                <div className="mt-1 flex justify-between text-[10px] text-slate-500">
+                                                    <span>Smaller file</span>
+                                                    <span>70 to 85% is a good range</span>
+                                                    <span>Better quality</span>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <div>
+                                                <label htmlFor="ic-target" className={`${fieldLabel} mb-1 block`}>
+                                                    Maximum size (KB)
+                                                </label>
+                                                <input
+                                                    id="ic-target"
+                                                    type="number"
+                                                    min={5}
+                                                    value={targetKb}
+                                                    onChange={(e) => setTargetKb(e.target.value)}
+                                                    className={input}
+                                                />
+                                                <div className="mt-2 flex flex-wrap gap-2">
+                                                    {[50, 100, 200, 500, 1024].map((k) => (
+                                                        <button
+                                                            key={k}
+                                                            type="button"
+                                                            onClick={() => setTargetKb(String(k))}
+                                                            className="rounded-lg border border-slate-700 px-2.5 py-1 text-[11px] font-bold text-slate-300 transition hover:bg-slate-800"
+                                                        >
+                                                            {k >= 1024 ? "1 MB" : `${k} KB`}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                ) : (
+                                    <div className="flex items-start gap-2 rounded-xl border border-slate-700 bg-slate-900 p-3 text-[11px] leading-relaxed text-slate-300">
+                                        <Info className="mt-0.5 h-4 w-4 shrink-0 text-cyan-300" />
+                                        <span>
+                                            PNG is lossless, so there is no quality setting. To make a PNG smaller, reduce its dimensions, or switch to
+                                            WebP or JPEG.
+                                        </span>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Dimensions */}
+                            <div className="space-y-4 rounded-2xl border border-slate-800 bg-slate-950/50 p-5">
+                                <div className="flex items-center justify-between">
+                                    <div className={fieldLabel}>Dimensions (px)</div>
+                                    <button
+                                        type="button"
+                                        onClick={() => setLock((l) => !l)}
+                                        aria-pressed={lock}
+                                        className="inline-flex items-center gap-1.5 rounded-lg border border-slate-700 px-2.5 py-1 text-[11px] font-bold text-slate-300 transition hover:bg-slate-800"
+                                    >
+                                        {lock ? <Link2 className="h-3.5 w-3.5 text-cyan-300" /> : <Unlink2 className="h-3.5 w-3.5" />}
+                                        {lock ? "Ratio locked" : "Ratio free"}
+                                    </button>
+                                </div>
                                 <div className="grid grid-cols-2 gap-3">
                                     <div>
-                                        <label htmlFor="width" className="mb-1.5 block text-xs font-bold text-slate-600">
-                                            Width (px)
+                                        <label htmlFor="ic-w" className="mb-1 block text-[11px] font-bold text-slate-400">
+                                            Width
                                         </label>
-                                        <input
-                                            id="width"
-                                            type="number"
-                                            min="1"
-                                            max="10000"
-                                            value={width}
-                                            onChange={(e) => handleWidthChange(e.target.value)}
-                                            className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-bold text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition"
-                                        />
+                                        <input id="ic-w" type="number" min={1} max={MAX_SIDE} value={width} onChange={(e) => setW(e.target.value)} className={input} />
                                     </div>
-
                                     <div>
-                                        <label htmlFor="height" className="mb-1.5 block text-xs font-bold text-slate-600">
-                                            Height (px)
+                                        <label htmlFor="ic-h" className="mb-1 block text-[11px] font-bold text-slate-400">
+                                            Height
                                         </label>
-                                        <input
-                                            id="height"
-                                            type="number"
-                                            min="1"
-                                            max="10000"
-                                            value={height}
-                                            onChange={(e) => handleHeightChange(e.target.value)}
-                                            className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-bold text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition"
-                                        />
+                                        <input id="ic-h" type="number" min={1} max={MAX_SIDE} value={height} onChange={(e) => setH(e.target.value)} className={input} />
                                     </div>
                                 </div>
-
-                                <label className="flex items-center gap-2.5 pt-1 cursor-pointer">
-                                    <input
-                                        type="checkbox"
-                                        checked={keepAspectRatio}
-                                        onChange={(e) => setKeepAspectRatio(e.target.checked)}
-                                        className="h-4 w-4 accent-blue-600 rounded cursor-pointer"
-                                    />
-                                    <span className="text-xs font-semibold text-slate-700">
-                                        Maintain Original Aspect Ratio
-                                    </span>
-                                </label>
-                            </div>
-
-                            {/* 2. Output Format Card */}
-                            <div className="rounded-2xl border border-slate-200/80 bg-slate-50/50 p-5 space-y-4">
-                                <div className="flex items-center gap-2 border-b border-slate-200/60 pb-3">
-                                    <FileType className="h-4 w-4 text-blue-600" />
-                                    <h3 className="text-xs font-bold uppercase tracking-wider text-slate-800">
-                                        Target Output Format
-                                    </h3>
+                                <div>
+                                    <div className="mb-1.5 text-[11px] font-bold text-slate-400">Scale to</div>
+                                    <div className="flex flex-wrap gap-2">
+                                        {[100, 75, 50, 25].map((p) => (
+                                            <button
+                                                key={p}
+                                                type="button"
+                                                onClick={() => applyScale(p)}
+                                                className="rounded-lg border border-slate-700 px-3 py-1 text-[11px] font-bold text-slate-300 transition hover:bg-slate-800"
+                                            >
+                                                {p}%
+                                            </button>
+                                        ))}
+                                    </div>
                                 </div>
-
-                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                                    {(
-                                        [
-                                            ["jpeg", "JPEG"],
-                                            ["png", "PNG"],
-                                            ["webp", "WebP"],
-                                            ["pdf", "PDF"],
-                                        ] as const
-                                    ).map(([value, label]) => (
-                                        <button
-                                            key={value}
-                                            type="button"
-                                            onClick={() => setOutputFormat(value)}
-                                            className={`rounded-xl border py-2.5 text-xs font-bold transition ${outputFormat === value
-                                                    ? "border-blue-600 bg-blue-600 text-white shadow-sm"
-                                                    : "border-slate-200 bg-white text-slate-700 hover:border-blue-300"
-                                                }`}
-                                        >
-                                            {label}
-                                        </button>
-                                    ))}
-                                </div>
+                                {(Number(width) > src.width || Number(height) > src.height) && (
+                                    <p className="flex items-start gap-1.5 text-[11px] text-amber-300">
+                                        <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                                        Enlarging a picture does not add detail and increases file size. Use our Image Upscaler for better enlargement.
+                                    </p>
+                                )}
                             </div>
                         </div>
 
-                        {/* Quality Range Slider */}
-                        <div className="rounded-2xl border border-slate-200/80 bg-slate-50/50 p-5 space-y-3">
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-2">
-                                    <Sliders className="h-4 w-4 text-blue-600" />
-                                    <label htmlFor="quality" className="text-xs font-bold uppercase tracking-wider text-slate-800">
-                                        Compression Quality
-                                    </label>
-                                </div>
-                                <span className="text-xs font-bold text-blue-700 bg-blue-100/70 px-3 py-1 rounded-md">
-                                    {Math.round(quality * 100)}%
-                                </span>
-                            </div>
-
-                            <input
-                                id="quality"
-                                type="range"
-                                min="0.1"
-                                max="1"
-                                step="0.05"
-                                value={quality}
-                                onChange={(e) => setQuality(Number(e.target.value))}
-                                className="w-full accent-blue-600 cursor-pointer"
-                            />
-
-                            <div className="flex justify-between items-center text-[11px] font-semibold text-slate-500">
-                                <span>Smaller File Size</span>
-                                <span>
-                                    {quality <= 0.3
-                                        ? "High Compression"
-                                        : quality <= 0.55
-                                            ? "Balanced"
-                                            : quality <= 0.8
-                                                ? "Good Quality"
-                                                : "Best Quality"}
-                                </span>
-                                <span>Higher Quality</span>
-                            </div>
-
-                            <div className="grid grid-cols-5 gap-2 pt-2">
-                                {[20, 40, 60, 80, 100].map((val) => (
-                                    <button
-                                        key={val}
-                                        type="button"
-                                        onClick={() => setQuality(val / 100)}
-                                        className={`rounded-lg border py-1.5 text-xs font-bold transition ${Math.round(quality * 100) === val
-                                                ? "border-blue-600 bg-blue-50 text-blue-700"
-                                                : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
-                                            }`}
-                                    >
-                                        {val}%
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* Compress Trigger Button */}
                         <button
                             type="button"
-                            onClick={compressImage}
-                            disabled={compressing}
-                            className="flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 py-3.5 text-sm font-bold text-white shadow-md shadow-blue-500/20 hover:bg-blue-700 transition disabled:opacity-60 cursor-pointer"
+                            onClick={run}
+                            disabled={busy}
+                            className="flex w-full items-center justify-center gap-2 rounded-xl bg-cyan-500 px-6 py-3.5 text-sm font-bold text-slate-950 transition hover:bg-cyan-400 disabled:opacity-60"
                         >
-                            {compressing ? (
-                                <Loader2 className="h-5 w-5 animate-spin" />
-                            ) : (
-                                <Zap className="h-5 w-5" />
-                            )}
-                            {compressing
-                                ? "Processing Image..."
-                                : `Convert & Compress to ${outputFormat.toUpperCase()}`}
+                            {busy ? <Loader2 className="h-5 w-5 animate-spin" /> : <Zap className="h-5 w-5" />}
+                            {busy ? "Processing…" : `Compress to ${FORMATS.find((f) => f.id === format)!.label}`}
                         </button>
-
-                        {/* Compression Results Banner & Side-by-Side Comparison */}
-                        {compressedUrl && (
-                            <div className="rounded-2xl border border-emerald-200 bg-emerald-50/80 p-6 space-y-6">
-                                <div className="flex items-center gap-3">
-                                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-500 text-white shadow-md">
-                                        <CheckCircle2 className="h-6 w-6" />
-                                    </div>
-                                    <div>
-                                        <h3 className="text-base font-bold text-slate-900">
-                                            Image Processed Successfully! 🎉
-                                        </h3>
-                                        <p className="text-xs text-slate-600 mt-0.5">
-                                            Your image has been optimized and converted to {outputFormat.toUpperCase()}.
-                                        </p>
-                                    </div>
-                                </div>
-
-                                {/* Before vs After Visual Comparison */}
-                                <div className="grid gap-6 md:grid-cols-2">
-                                    <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
-                                        <div className="border-b border-slate-200 bg-slate-50 px-4 py-2.5 text-xs font-bold text-slate-700">
-                                            Original
-                                        </div>
-                                        <div className="flex min-h-56 items-center justify-center p-4 bg-slate-50/50">
-                                            <img
-                                                src={image.preview}
-                                                alt="Original image"
-                                                className="max-h-64 max-w-full object-contain rounded-md"
-                                            />
-                                        </div>
-                                        <div className="border-t border-slate-200 p-3 text-xs bg-white">
-                                            <p className="font-bold text-slate-900">{formatSize(image.size)}</p>
-                                            <p className="text-slate-500 text-[11px]">{image.width} × {image.height} px</p>
-                                        </div>
-                                    </div>
-
-                                    <div className="overflow-hidden rounded-2xl border border-emerald-300 bg-white">
-                                        <div className="border-b border-emerald-200 bg-emerald-100/60 px-4 py-2.5 text-xs font-bold text-emerald-800 flex justify-between">
-                                            <span>Result ({outputFormat.toUpperCase()})</span>
-                                            <span className="text-emerald-700 font-extrabold">{compressionPercentage}% Saved</span>
-                                        </div>
-                                        <div className="flex min-h-56 items-center justify-center p-4 bg-emerald-50/30">
-                                            {outputFormat === "pdf" ? (
-                                                <div className="text-center p-6">
-                                                    <div className="text-5xl mb-2">📄</div>
-                                                    <p className="font-bold text-slate-800 text-xs">PDF Document Ready</p>
-                                                </div>
-                                            ) : (
-                                                <img
-                                                    src={compressedUrl}
-                                                    alt="Compressed image"
-                                                    className="max-h-64 max-w-full object-contain rounded-md"
-                                                />
-                                            )}
-                                        </div>
-                                        <div className="border-t border-emerald-200 p-3 text-xs bg-white">
-                                            <p className="font-bold text-emerald-700">{formatSize(compressedSize)}</p>
-                                            <p className="text-slate-500 text-[11px]">{compressedWidth} × {compressedHeight} px</p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Stat Highlights */}
-                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                                    <div className="rounded-xl border border-slate-200 bg-white p-3 text-center">
-                                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Original</span>
-                                        <p className="font-bold text-slate-900 text-xs mt-0.5">{formatSize(image.size)}</p>
-                                    </div>
-                                    <div className="rounded-xl border border-slate-200 bg-white p-3 text-center">
-                                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">New Size</span>
-                                        <p className="font-bold text-slate-900 text-xs mt-0.5">{formatSize(compressedSize)}</p>
-                                    </div>
-                                    <div className="rounded-xl border border-emerald-200 bg-white p-3 text-center">
-                                        <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-600">Saved</span>
-                                        <p className="font-bold text-emerald-700 text-xs mt-0.5">{formatSize(savedBytes)}</p>
-                                    </div>
-                                    <div className="rounded-xl border border-emerald-200 bg-white p-3 text-center">
-                                        <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-600">Reduction</span>
-                                        <p className="font-bold text-emerald-700 text-xs mt-0.5">{compressionPercentage}%</p>
-                                    </div>
-                                </div>
-
-                                {/* Download Button Actions */}
-                                <div className="flex flex-col sm:flex-row gap-3 pt-2">
-                                    <button
-                                        type="button"
-                                        onClick={downloadImage}
-                                        className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-6 py-3 text-xs font-bold text-white shadow-md hover:bg-emerald-700 transition"
-                                    >
-                                        <Download className="h-4 w-4" />
-                                        Download {outputFormat.toUpperCase()}
-                                    </button>
-
-                                    <button
-                                        type="button"
-                                        onClick={compressImage}
-                                        disabled={compressing}
-                                        className="inline-flex items-center justify-center gap-2 rounded-xl border border-blue-600 bg-white px-6 py-3 text-xs font-bold text-blue-600 hover:bg-blue-50 transition disabled:opacity-50"
-                                    >
-                                        <RefreshCw className="h-4 w-4" />
-                                        Re-compress
-                                    </button>
-                                </div>
-                            </div>
-                        )}
                     </div>
                 )}
 
-                {/* Privacy Highlights */}
-                <div className="mt-8 grid gap-4 sm:grid-cols-3">
-                    <div className="rounded-2xl bg-slate-50/80 p-4 border border-slate-100 flex items-start gap-3">
-                        <Zap className="h-5 w-5 text-amber-500 shrink-0 mt-0.5" />
-                        <div>
-                            <h4 className="font-bold text-xs text-slate-900">Browser Processing</h4>
-                            <p className="text-[11px] text-slate-500 mt-0.5">Canvas HTML5 rendering engine running locally.</p>
-                        </div>
+                {status && (
+                    <div role="status" className={`mt-5 flex items-start gap-3 rounded-2xl border p-4 text-xs font-medium ${statusStyles[status.kind]}`}>
+                        <StatusIcon className="mt-0.5 h-5 w-5 shrink-0" />
+                        <span className="leading-relaxed">{status.text}</span>
                     </div>
+                )}
 
-                    <div className="rounded-2xl bg-slate-50/80 p-4 border border-slate-100 flex items-start gap-3">
-                        <Sparkles className="h-5 w-5 text-blue-600 shrink-0 mt-0.5" />
-                        <div>
-                            <h4 className="font-bold text-xs text-slate-900">Multiple Output Formats</h4>
-                            <p className="text-[11px] text-slate-500 mt-0.5">Export to JPEG, PNG, WebP, or single-page PDF.</p>
+                {/* Result */}
+                {out && src && (
+                    <div className="mt-6 overflow-hidden rounded-2xl border border-emerald-500/30 bg-emerald-500/5">
+                        <div className="border-b border-emerald-500/20 bg-emerald-500/10 px-5 py-4">
+                            <h3 className="text-sm font-bold text-slate-100">Your image is ready</h3>
+                            <p className="text-xs text-slate-400">
+                                Saved as {FORMATS.find((f) => f.id === out.format)!.label}
+                                {out.quality !== null ? ` at about ${Math.round(out.quality * 100)}% quality` : ""} · {out.width} × {out.height} px
+                            </p>
                         </div>
-                    </div>
+                        <div className="space-y-5 p-5">
+                            <div className="grid gap-4 md:grid-cols-2">
+                                <figure className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-950">
+                                    <figcaption className="flex justify-between border-b border-slate-800 px-4 py-2 text-xs font-bold text-slate-300">
+                                        <span>Original</span>
+                                        <span className="text-slate-400">{formatSize(src.file.size)}</span>
+                                    </figcaption>
+                                    <div className="flex min-h-48 items-center justify-center bg-[repeating-conic-gradient(#0f172a_0%_25%,#111c33_0%_50%)] bg-[length:16px_16px] p-3">
+                                        <img src={src.url} alt="Original" className="max-h-64 max-w-full object-contain" />
+                                    </div>
+                                </figure>
+                                <figure className="overflow-hidden rounded-2xl border border-emerald-500/30 bg-slate-950">
+                                    <figcaption className="flex justify-between border-b border-emerald-500/20 px-4 py-2 text-xs font-bold text-emerald-300">
+                                        <span>Result</span>
+                                        <span>{formatSize(out.blob.size)}</span>
+                                    </figcaption>
+                                    <div className="flex min-h-48 items-center justify-center bg-[repeating-conic-gradient(#0f172a_0%_25%,#111c33_0%_50%)] bg-[length:16px_16px] p-3">
+                                        {out.url ? (
+                                            <img src={out.url} alt="Compressed result" className="max-h-64 max-w-full object-contain" />
+                                        ) : (
+                                            <div className="text-center text-xs font-semibold text-slate-300">PDF document ready</div>
+                                        )}
+                                    </div>
+                                </figure>
+                            </div>
 
-                    <div className="rounded-2xl bg-slate-50/80 p-4 border border-slate-100 flex items-start gap-3">
-                        <ShieldCheck className="h-5 w-5 text-emerald-500 shrink-0 mt-0.5" />
-                        <div>
-                            <h4 className="font-bold text-xs text-slate-900">100% Private</h4>
-                            <p className="text-[11px] text-slate-500 mt-0.5">No image bytes ever leave your client device.</p>
+                            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                                {[
+                                    { l: "Original", v: formatSize(src.file.size), c: "text-slate-100" },
+                                    { l: "New size", v: formatSize(out.blob.size), c: "text-slate-100" },
+                                    { l: "Saved", v: formatSize(Math.max(0, src.file.size - out.blob.size)), c: "text-cyan-300" },
+                                    { l: "Reduction", v: `${savedPct.toFixed(1)}%`, c: "text-emerald-300" },
+                                ].map((s) => (
+                                    <div key={s.l} className="rounded-xl border border-slate-800 bg-slate-950/60 p-3 text-center">
+                                        <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500">{s.l}</div>
+                                        <div className={`mt-0.5 text-sm font-bold ${s.c}`}>{s.v}</div>
+                                    </div>
+                                ))}
+                            </div>
+
+                            {out.notes.map((n) => (
+                                <p key={n} className="flex items-start gap-2 text-xs text-amber-300">
+                                    <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+                                    {n}
+                                </p>
+                            ))}
+
+                            <button
+                                type="button"
+                                onClick={download}
+                                className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-500 px-6 py-3.5 text-xs font-bold text-slate-950 transition hover:bg-emerald-400"
+                            >
+                                <Download className="h-4 w-4" />
+                                Download {FORMATS.find((f) => f.id === out.format)!.label}
+                            </button>
                         </div>
                     </div>
-                </div>
+                )}
             </div>
 
-            {/* About Tool Section */}
-            <div className="rounded-3xl border border-slate-200/80 bg-white p-6 md:p-8 shadow-sm">
-                <div className="flex items-center gap-3 mb-4">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-600 border border-blue-100">
+            {/* ---------------- About ---------------- */}
+            <section className={card}>
+                <div className="mb-4 flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-blue-500/20 bg-blue-500/10 text-blue-400">
                         <HelpCircle className="h-5 w-5" />
                     </div>
-                    <h3 className="text-lg font-bold text-slate-900">About Smart Image Compressor</h3>
+                    <h2 className="text-lg font-bold text-slate-100">About the Image Compressor</h2>
                 </div>
-                <p className="text-xs text-slate-600 leading-relaxed">
-                    Compress, resize, and convert images instantly right inside your browser with 100% data privacy. No files are uploaded to external servers, ensuring lightning-fast performance and secure processing.
-                </p>
-            </div>
+                <div className="space-y-3 text-sm leading-relaxed text-slate-300">
+                    <p>
+                        Large images slow down websites, fill up email attachments and get rejected by upload forms with strict size limits.
+                        This tool shrinks them in your browser: choose a format, pick a quality or a target size such as 200 KB, optionally
+                        resize, and download the result. You see a before and after comparison and the exact bytes saved, so there is no
+                        guessing.
+                    </p>
+                    <p>
+                        Because processing happens locally with the browser&apos;s Canvas API, your pictures are never uploaded. As a side
+                        effect, saving the image again removes hidden metadata such as GPS location and camera details, which is handy before
+                        sharing photos online. We are also upfront about the limits: compression for JPEG and WebP is lossy, PNG has no
+                        quality setting, and we warn you whenever the result is not actually smaller.
+                    </p>
+                </div>
+            </section>
 
-            {/* How to Use & Key Advantages Sections */}
+            {/* ---------------- How to / features ---------------- */}
             <div className="grid gap-6 md:grid-cols-2">
-                <div className="rounded-3xl border border-slate-200/80 bg-white p-6 md:p-8 shadow-sm space-y-4">
+                <section className={`${card} space-y-4`}>
                     <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-50 text-amber-600 border border-amber-100">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-amber-500/20 bg-amber-500/10 text-amber-400">
                             <Zap className="h-5 w-5" />
                         </div>
-                        <h3 className="text-base font-bold text-slate-900">How to Use</h3>
+                        <h2 className="text-base font-bold text-slate-100">How to Use</h2>
                     </div>
-                    <ul className="space-y-3 text-xs text-slate-600">
-                        <li className="flex items-start gap-2.5">
-                            <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-slate-100 font-bold text-slate-700 text-[10px]">1</span>
-                            <span>Upload or drag & drop your image file into the browser box.</span>
-                        </li>
-                        <li className="flex items-start gap-2.5">
-                            <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-slate-100 font-bold text-slate-700 text-[10px]">2</span>
-                            <span>Adjust compression quality, resolution dimensions, or target format.</span>
-                        </li>
-                        <li className="flex items-start gap-2.5">
-                            <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-slate-100 font-bold text-slate-700 text-[10px]">3</span>
-                            <span>Click convert and download your optimized image file instantly.</span>
-                        </li>
-                    </ul>
-                </div>
+                    <ol className="space-y-3 text-sm text-slate-300">
+                        {[
+                            "Drop an image onto the box or click Choose image (up to 20 MB).",
+                            "Pick an output format. JPEG or WebP gives the biggest savings for photos.",
+                            "Set a quality, or switch to Target file size and enter a limit such as 200 KB. Optionally reduce the dimensions.",
+                            "Click Compress, compare the result with the original, then download it.",
+                        ].map((t, i) => (
+                            <li key={i} className="flex items-start gap-3">
+                                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-slate-800 text-[10px] font-bold text-slate-200">
+                                    {i + 1}
+                                </span>
+                                <span>{t}</span>
+                            </li>
+                        ))}
+                    </ol>
+                </section>
 
-                <div className="rounded-3xl border border-slate-200/80 bg-white p-6 md:p-8 shadow-sm space-y-4">
+                <section className={`${card} space-y-4`}>
                     <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-100">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-emerald-500/20 bg-emerald-500/10 text-emerald-400">
                             <ShieldCheck className="h-5 w-5" />
                         </div>
-                        <h3 className="text-base font-bold text-slate-900">Key Advantages</h3>
+                        <h2 className="text-base font-bold text-slate-100">Key Features</h2>
                     </div>
-                    <ul className="space-y-2.5 text-xs text-slate-600">
-                        <li className="flex items-center gap-2">
-                            <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
-                            <span>100% free with no registration or limits</span>
-                        </li>
-                        <li className="flex items-center gap-2">
-                            <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
-                            <span>Supports JPEG, PNG, WebP, and PDF export options</span>
-                        </li>
-                        <li className="flex items-center gap-2">
-                            <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
-                            <span>Zero cloud uploads, guaranteeing maximum privacy</span>
-                        </li>
-                        <li className="flex items-center gap-2">
-                            <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
-                            <span>Lightning-fast client-side HTML5 canvas compression</span>
-                        </li>
+                    <ul className="space-y-2.5 text-sm text-slate-300">
+                        {[
+                            "Private: images are processed on your device and never uploaded",
+                            "JPEG, WebP, PNG and PDF output",
+                            "Target file size mode finds the best quality that fits your limit",
+                            "Resize with a locked aspect ratio and quick scale buttons",
+                            "Side by side comparison and exact savings",
+                            "Strips GPS and camera metadata, and keeps photos upright",
+                            "Free, with no sign-up and no watermark",
+                        ].map((t) => (
+                            <li key={t} className="flex items-start gap-2.5">
+                                <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-400" />
+                                <span>{t}</span>
+                            </li>
+                        ))}
                     </ul>
-                </div>
+                </section>
             </div>
+
+            {/* ---------------- Format guide ---------------- */}
+            <section className={card}>
+                <h2 className="mb-4 text-lg font-bold text-slate-100">Which Image Format Should You Use?</h2>
+                <div className="overflow-x-auto rounded-2xl border border-slate-800">
+                    <table className="w-full min-w-[520px] text-left text-xs">
+                        <thead className="bg-slate-950/80 text-slate-400">
+                            <tr>
+                                <th className="px-4 py-3 font-bold">Format</th>
+                                <th className="px-4 py-3 font-bold">Best for</th>
+                                <th className="px-4 py-3 font-bold">Compression</th>
+                                <th className="px-4 py-3 font-bold">Transparency</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-800 text-slate-300">
+                            {FORMAT_ROWS.map((r) => (
+                                <tr key={r[0]}>
+                                    <td className="px-4 py-3 font-semibold text-slate-200">{r[0]}</td>
+                                    <td className="px-4 py-3">{r[1]}</td>
+                                    <td className="px-4 py-3">{r[2]}</td>
+                                    <td className="px-4 py-3">{r[3]}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            {/* ---------------- Quality guide ---------------- */}
+            <section className={card}>
+                <h2 className="mb-3 text-lg font-bold text-slate-100">Choosing a Quality Level</h2>
+                <p className="mb-4 text-sm leading-relaxed text-slate-300">
+                    JPEG and WebP discard detail the eye is least likely to notice. The first few percent of quality you give up save a lot
+                    of space; after that you start to see the damage. Use this as a starting point, then check the comparison.
+                </p>
+                <div className="overflow-x-auto rounded-2xl border border-slate-800">
+                    <table className="w-full min-w-[520px] text-left text-xs">
+                        <thead className="bg-slate-950/80 text-slate-400">
+                            <tr>
+                                <th className="px-4 py-3 font-bold">Quality</th>
+                                <th className="px-4 py-3 font-bold">What you will see</th>
+                                <th className="px-4 py-3 font-bold">Use it for</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-800 text-slate-300">
+                            {QUALITY_ROWS.map((r) => (
+                                <tr key={r[0]}>
+                                    <td className="px-4 py-3 font-semibold text-slate-200">{r[0]}</td>
+                                    <td className="px-4 py-3">{r[1]}</td>
+                                    <td className="px-4 py-3 text-slate-400">{r[2]}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            {/* ---------------- Tips ---------------- */}
+            <section className={card}>
+                <div className="mb-4 flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-cyan-500/20 bg-cyan-500/10 text-cyan-300">
+                        <Lightbulb className="h-5 w-5" />
+                    </div>
+                    <h2 className="text-lg font-bold text-slate-100">Tips for Smaller Images</h2>
+                </div>
+                <ul className="space-y-3 text-sm text-slate-300">
+                    {TIPS.map((t) => (
+                        <li key={t} className="flex items-start gap-2.5">
+                            <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-400" />
+                            <span>{t}</span>
+                        </li>
+                    ))}
+                </ul>
+            </section>
+
+            {/* ---------------- FAQ ---------------- */}
+            <section className={card}>
+                <h2 className="mb-4 text-lg font-bold text-slate-100">Frequently Asked Questions</h2>
+                <div className="space-y-3">
+                    {FAQS.map((f) => (
+                        <details key={f.q} className="group rounded-2xl border border-slate-800 bg-slate-950/60 p-4 open:border-slate-700">
+                            <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-semibold text-slate-100">
+                                {f.q}
+                                <span className="text-slate-500 transition group-open:rotate-45">+</span>
+                            </summary>
+                            <p className="mt-3 text-xs leading-relaxed text-slate-400">{f.a}</p>
+                        </details>
+                    ))}
+                </div>
+            </section>
+
+            {/* ---------------- Related ---------------- */}
+            <section className={card}>
+                <h2 className="mb-4 text-base font-bold text-slate-100">Related Free Tools</h2>
+                <div className="grid gap-3 sm:grid-cols-2">
+                    {[
+                        { href: "/tools/image-resizer", t: "Image Resizer", d: "Set exact dimensions, with crop and presets." },
+                        { href: "/tools/image-upscaler", t: "Image Upscaler", d: "Enlarge images with sharpening." },
+                    ].map((l) => (
+                        <Link
+                            key={l.href}
+                            href={l.href}
+                            className="group flex items-center justify-between rounded-2xl border border-slate-800 bg-slate-950/60 p-4 transition hover:border-cyan-500/40"
+                        >
+                            <span>
+                                <span className="block text-sm font-semibold text-slate-100">{l.t}</span>
+                                <span className="block text-xs text-slate-400">{l.d}</span>
+                            </span>
+                            <ArrowRight className="h-4 w-4 text-slate-500 transition group-hover:translate-x-0.5 group-hover:text-cyan-300" />
+                        </Link>
+                    ))}
+                </div>
+            </section>
         </div>
     );
 }

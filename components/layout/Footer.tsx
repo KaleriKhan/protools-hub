@@ -1,114 +1,79 @@
-"use client";
-
-import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { Wrench, Shield } from "lucide-react";
+import { Shield } from "lucide-react";
+import Logo from "./Logo";
+
+const categories = [
+    ["PDF Utilities", "PDF"],
+    ["Image Processing", "Image"],
+    ["Developer Suite", "Developer"],
+    ["Security & Passwords", "Security"],
+    ["Text Utilities", "Text"],
+];
+
+const company = [
+    ["Home", "/"],
+    ["All Tools", "/tools"],
+    ["Blog & Articles", "/blog"],
+    ["About Us", "/about"],
+    ["Contact", "/contact"],
+];
 
 export default function Footer() {
-    const [currentYear, setCurrentYear] = useState<number>(2026);
-
-    useEffect(() => {
-        setCurrentYear(new Date().getFullYear());
-    }, []);
+    const year = new Date().getFullYear();
+    const linkCls = "transition hover:text-white focus:outline-none focus-visible:underline";
 
     return (
-        <footer className="border-t border-slate-800 bg-slate-900 text-slate-200">
+        <footer className="border-t border-slate-800 bg-slate-950 text-slate-300">
             <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-
-                    {/* Brand & About */}
-                    <div className="space-y-4 md:col-span-1">
-                        <Link href="/" className="flex items-center gap-2.5 group">
-                            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/20 group-hover:scale-105 transition-transform duration-300">
-                                <Wrench className="h-4 w-4" />
-                            </div>
-                            <div className="flex flex-col">
-                                <span className="text-xl font-extrabold tracking-tight text-white flex items-center gap-0.5">
-                                    ProTools<span className="text-blue-400">Hub</span>
-                                </span>
-                                <span className="text-[10px] font-semibold text-slate-300 -mt-1 tracking-wider uppercase">
-                                    Developer Toolkit
-                                </span>
-                            </div>
-                        </Link>
-                        <p className="text-xs text-slate-300 leading-relaxed">
-                            Fast, free, and secure client-side tools designed for developers, designers, creators, and everyday productivity.
+                <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
+                    <div className="space-y-4">
+                        <Logo size="sm" />
+                        <p className="text-xs leading-relaxed text-slate-400">
+                            Free, fast online tools for developers, designers and everyday work. Most tools process your files directly in your browser.
                         </p>
                     </div>
 
-                    {/* Quick Links */}
-                    <div>
-                        <h4 className="text-sm font-semibold text-white mb-4 uppercase tracking-wider">
-                            Quick Links
-                        </h4>
-                        <ul className="space-y-2.5 text-xs text-slate-300">
-                            <li>
-                                <Link href="/" className="hover:text-white transition">
-                                    Home
-                                </Link>
-                            </li>
-                            <li>
-                                <Link href="/tools" className="hover:text-white transition">
-                                    All Tools
-                                </Link>
-                            </li>
-                            <li>
-                                <Link href="/categories" className="hover:text-white transition">
-                                    Tool Categories
-                                </Link>
-                            </li>
-                            <li>
-                                <Link href="/blog" className="hover:text-white transition">
-                                    Blog & Articles
-                                </Link>
-                            </li>
-                            <li>
-                                <Link href="/contact" className="hover:text-white transition">
-                                    Contact Support
-                                </Link>
-                            </li>
+                    <nav aria-label="Quick links">
+                        <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-white">Quick Links</h2>
+                        <ul className="space-y-2.5 text-xs text-slate-400">
+                            {company.map(([label, href]) => (
+                                <li key={href}><Link href={href} className={linkCls}>{label}</Link></li>
+                            ))}
                         </ul>
-                    </div>
+                    </nav>
 
-                    {/* Categories */}
-                    <div>
-                        <h4 className="text-sm font-semibold text-white mb-4 uppercase tracking-wider">
-                            Categories
-                        </h4>
-                        <ul className="space-y-2.5 text-xs text-slate-300">
-                            <li><Link href="/categories" className="hover:text-white transition">PDF Utilities</Link></li>
-                            <li><Link href="/categories" className="hover:text-white transition">Image Processing</Link></li>
-                            <li><Link href="/categories" className="hover:text-white transition">Developer Suite</Link></li>
-                            <li><Link href="/categories" className="hover:text-white transition">Security & Passwords</Link></li>
-                            <li><Link href="/categories" className="hover:text-white transition">Text Utilities</Link></li>
+                    <nav aria-label="Tool categories">
+                        <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-white">Categories</h2>
+                        <ul className="space-y-2.5 text-xs text-slate-400">
+                            {categories.map(([label, key]) => (
+                                <li key={key}><Link href={`/categories?category=${key}`} className={linkCls}>{label}</Link></li>
+                            ))}
                         </ul>
-                    </div>
+                    </nav>
 
-                    {/* Privacy & Trust Badge */}
-                    <div className="space-y-3">
-                        <h4 className="text-sm font-semibold text-white mb-4 uppercase tracking-wider">
-                            Privacy Guaranteed
-                        </h4>
-                        <div className="rounded-xl border border-slate-700 bg-slate-800/80 p-4 space-y-2">
-                            <div className="flex items-center gap-2 text-xs font-semibold text-emerald-300">
-                                <Shield className="h-4 w-4" />
-                                <span>Zero Data Collection</span>
+                    <div>
+                        <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-white">Your Files Stay Yours</h2>
+                        <div className="space-y-2 rounded-2xl border border-slate-800 bg-slate-900 p-4">
+                            <div className="flex items-center gap-2 text-xs font-semibold text-emerald-400">
+                                <Shield className="h-4 w-4" aria-hidden="true" />
+                                <span>Browser-side processing</span>
                             </div>
-                            <p className="text-[11px] text-slate-300 leading-normal">
-                                All file conversions, password generations, and text parsing occur strictly within your browser.
+                            <p className="text-[11px] leading-normal text-slate-400">
+                                Files you convert, compress or edit are handled on your device and are not uploaded to our servers. See our{" "}
+                                <Link href="/privacy" className="text-blue-400 underline-offset-2 hover:underline">Privacy Policy</Link>{" "}
+                                for how ads and cookies work.
                             </p>
                         </div>
                     </div>
-
                 </div>
 
-                {/* Bottom Copyright Bar */}
-                <div className="mt-12 border-t border-slate-800 pt-6 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-300 gap-4">
-                    <p>© {currentYear} ProTools Hub. All rights reserved.</p>
-                    <div className="flex items-center gap-4">
-                        <Link href="/contact" className="hover:text-white transition">Privacy Policy</Link>
-                        <Link href="/contact" className="hover:text-white transition">Terms of Service</Link>
-                        <Link href="/contact" className="hover:text-white transition">Contact Us</Link>
+                <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-slate-800 pt-6 text-xs text-slate-400 sm:flex-row">
+                    <p>© {year} ProTools Hub. All rights reserved.</p>
+                    <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
+                        <Link href="/privacy" className={linkCls}>Privacy Policy</Link>
+                        <Link href="/terms" className={linkCls}>Terms of Service</Link>
+                        <Link href="/about" className={linkCls}>About</Link>
+                        <Link href="/contact" className={linkCls}>Contact</Link>
                     </div>
                 </div>
             </div>

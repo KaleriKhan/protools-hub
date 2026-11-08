@@ -1,135 +1,194 @@
 "use client";
 
-import React, { useState } from "react";
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { tools } from "@/data/tools";
-import { Search, Sparkles, ArrowRight, ShieldCheck, Zap, Lock } from "lucide-react";
+import {
+  Search, Sparkles, ArrowRight, ShieldCheck, Zap, Lock, FileText, Image as ImageIcon,
+  Type, Code2, KeyRound, type LucideIcon,
+} from "lucide-react";
+import PopularSearches from "./PopularSearches";
+
+const iconFor = (category: string): LucideIcon => {
+  const c = category.toLowerCase();
+  if (c.includes("pdf")) return FileText;
+  if (c.includes("image")) return ImageIcon;
+  if (c.includes("text")) return Type;
+  if (c.includes("secur")) return KeyRound;
+  return Code2;
+};
 
 export default function Hero() {
+  const router = useRouter();
   const [query, setQuery] = useState("");
+  const [open, setOpen] = useState(false);
+  const wrapRef = useRef<HTMLDivElement>(null);
 
-  const filteredTools = query.trim()
-    ? tools.filter(
-      (t) =>
-        t.name.toLowerCase().includes(query.toLowerCase()) ||
-        t.description.toLowerCase().includes(query.toLowerCase())
-    )
-    : [];
+  const results = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return [];
+    return tools
+      .filter((t) => t.name.toLowerCase().includes(q) || t.description.toLowerCase().includes(q))
+      .slice(0, 6);
+  }, [query]);
 
-  const handleScrollToTools = (e: React.MouseEvent) => {
+  useEffect(() => {
+    const onClick = (e: MouseEvent) => {
+      if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) setOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+    document.addEventListener("mousedown", onClick);
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onClick);
+      window.removeEventListener("keydown", onKey);
+    };
+  }, []);
+
+  const onSubmit = (e: FormEvent) => {
     e.preventDefault();
-    const elem = document.getElementById("featured-tools");
-    if (elem) {
-      elem.scrollIntoView({ behavior: "smooth" });
-    }
+    const q = query.trim();
+    if (!q) return;
+    router.push(results.length > 0 ? `/tools/${results[0].slug}` : `/categories?q=${encodeURIComponent(q)}`);
+    setOpen(false);
   };
 
-  return (
-    <section className="relative overflow-hidden bg-gradient-to-b from-blue-50/70 via-slate-50/50 to-white py-20 md:py-28 border-b border-slate-200/60">
+  const scrollToTools = () => document.getElementById("featured-tools")?.scrollIntoView({ behavior: "smooth" });
+  const preview = tools.slice(0, 5);
 
-      {/* Background Decorative Gradient Blobs */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-96 pointer-events-none opacity-60">
-        <div className="absolute top-10 left-1/4 h-72 w-72 rounded-full bg-blue-400 blur-3xl opacity-20"></div>
-        <div className="absolute top-20 right-1/4 h-80 w-80 rounded-full bg-indigo-400 blur-3xl opacity-20"></div>
+  return (
+    <section className="relative overflow-hidden border-b border-slate-800 bg-slate-950">
+      <div className="pointer-events-none absolute inset-0" aria-hidden="true">
+        <div className="absolute -left-24 top-0 h-80 w-80 rounded-full bg-blue-600 opacity-20 blur-3xl" />
+        <div className="absolute right-0 top-24 h-96 w-96 rounded-full bg-indigo-600 opacity-20 blur-3xl" />
       </div>
 
-      <div className="relative mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 text-center">
-
-        {/* Top Badge */}
-        <div className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-1.5 text-xs font-semibold text-blue-700 shadow-sm border border-blue-200/80 mb-6 hover:scale-105 transition-transform duration-300">
-          <Sparkles className="h-3.5 w-3.5 text-blue-600 animate-pulse" />
-          <span>100% Free • Client-Side Security • No Sign-Up</span>
-        </div>
-
-        {/* Main Title */}
-        <h1 className="text-4xl sm:text-6xl font-black text-slate-900 tracking-tight leading-[1.15]">
-          Smart Online Tools Built for <br className="hidden sm:inline" />
-          <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 bg-clip-text text-transparent">
-            Speed & Convenience
-          </span>
-        </h1>
-
-        <p className="mx-auto mt-6 max-w-2xl text-base sm:text-lg text-slate-600 leading-relaxed font-normal">
-          Format JSON, compress PDFs, generate secure passwords, convert text cases, and create QR codes — all processed right inside your browser without uploading data.
-        </p>
-
-        {/* Action Buttons */}
-        <div className="mt-8 flex flex-wrap justify-center items-center gap-4">
-          <button
-            onClick={handleScrollToTools}
-            className="group flex items-center gap-2 rounded-xl bg-blue-600 px-7 py-4 text-sm font-semibold text-white shadow-lg shadow-blue-500/25 hover:bg-blue-700 hover:shadow-blue-500/35 transition-all duration-300 cursor-pointer"
-          >
-            Explore All Tools
-            <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
-          </button>
-          <Link
-            href="/categories"
-            className="rounded-xl border border-slate-300 bg-white px-7 py-4 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50 hover:border-slate-400 transition-all duration-300"
-          >
-            Browse Categories
-          </Link>
-        </div>
-
-        {/* Interactive Search Bar */}
-        <div className="relative mx-auto mt-12 max-w-2xl">
-          <div className="relative group">
-            <div className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 opacity-20 blur-sm group-hover:opacity-40 transition duration-300"></div>
-            <div className="relative flex items-center">
-              <Search className="absolute left-4 h-5 w-5 text-slate-400" />
-              <input
-                type="text"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search tool (e.g. PDF Compressor, JSON Formatter, Password)..."
-                className="w-full rounded-2xl border border-slate-200 bg-white py-4 pl-12 pr-4 text-sm text-slate-900 shadow-xl shadow-slate-200/50 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all"
-              />
-            </div>
+      <div className="relative mx-auto grid max-w-7xl items-center gap-14 px-4 py-16 sm:px-6 md:py-24 lg:grid-cols-[1.1fr_0.9fr] lg:px-8">
+        {/* Left: message, search, actions */}
+        <div>
+          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-blue-500/30 bg-slate-900 px-4 py-1.5 text-xs font-semibold text-blue-400">
+            <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
+            <span>{tools.length} free tools · No sign-up</span>
           </div>
 
-          {/* Search Results Dropdown */}
-          {query.trim() !== "" && (
-            <div className="absolute left-0 right-0 top-18 z-50 rounded-2xl border border-slate-200 bg-white p-3 shadow-2xl text-left max-h-72 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-200">
-              {filteredTools.length > 0 ? (
-                filteredTools.map((tool) => (
-                  <Link
-                    key={tool.id}
-                    href={`/tools/${tool.slug}`}
-                    className="flex items-center justify-between rounded-xl p-3 hover:bg-blue-50/70 transition group"
-                  >
-                    <div>
-                      <p className="font-bold text-slate-900 text-sm group-hover:text-blue-600 transition">
-                        {tool.name}
-                      </p>
-                      <p className="text-xs text-slate-500 line-clamp-1">{tool.description}</p>
+          <h1 className="text-4xl font-black leading-[1.12] tracking-tight text-white sm:text-5xl xl:text-6xl">
+            Free online tools for{" "}
+            <span className="bg-gradient-to-r from-blue-400 via-indigo-400 to-blue-500 bg-clip-text text-transparent">
+              files, images, text &amp; code
+            </span>
+          </h1>
+
+          <p className="mt-6 max-w-xl text-base leading-relaxed text-slate-400 sm:text-lg">
+            Compress images and PDFs, convert PDF to Word, format JSON, generate passwords and QR codes. Your files are processed on your own device instead of being uploaded to our servers.
+          </p>
+
+          <div ref={wrapRef} className="relative mt-8 max-w-xl">
+            <form role="search" onSubmit={onSubmit} className="group relative">
+              <div className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 opacity-20 blur-sm transition duration-300 group-focus-within:opacity-40" aria-hidden="true" />
+              <div className="relative flex items-center">
+                <label htmlFor="hero-search" className="sr-only">Search tools</label>
+                <Search className="pointer-events-none absolute left-4 h-5 w-5 text-slate-400" aria-hidden="true" />
+                <input
+                  id="hero-search"
+                  type="search"
+                  autoComplete="off"
+                  value={query}
+                  onChange={(e) => { setQuery(e.target.value); setOpen(true); }}
+                  onFocus={() => setOpen(true)}
+                  placeholder="Search a tool, e.g. PDF compressor, JSON…"
+                  className="w-full rounded-2xl border border-slate-800 bg-slate-900 py-4 pl-12 pr-28 text-sm text-slate-200 shadow-2xl transition-all placeholder:text-slate-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                />
+                <button type="submit" className="absolute right-2 cursor-pointer rounded-xl bg-blue-600 px-4 py-2 text-xs font-bold text-white transition hover:bg-blue-500">
+                  Search
+                </button>
+              </div>
+            </form>
+
+            {open && query.trim() !== "" && (
+              <div className="absolute left-0 right-0 top-full z-50 mt-2 max-h-80 overflow-y-auto rounded-2xl border border-slate-800 bg-slate-900 p-2 shadow-2xl">
+                {results.length > 0 ? (
+                  results.map((tool) => (
+                    <Link
+                      key={tool.id}
+                      href={`/tools/${tool.slug}`}
+                      onClick={() => setOpen(false)}
+                      className="group flex items-center justify-between gap-3 rounded-xl p-3 transition hover:bg-slate-800"
+                    >
+                      <div className="min-w-0">
+                        <p className="text-sm font-bold text-slate-200 transition group-hover:text-blue-400">{tool.name}</p>
+                        <p className="line-clamp-1 text-xs text-slate-400">{tool.description}</p>
+                      </div>
+                      <span className="shrink-0 rounded-md border border-blue-500/20 bg-blue-500/10 px-2.5 py-1 text-xs font-semibold text-blue-400">{tool.category}</span>
+                    </Link>
+                  ))
+                ) : (
+                  <p className="p-4 text-center text-sm text-slate-400">
+                    No matching tools.{" "}
+                    <Link href={`/categories?q=${encodeURIComponent(query.trim())}`} className="font-semibold text-blue-400 hover:underline">Search the directory</Link>
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
+
+          <div className="mt-5 max-w-xl text-left [&>div]:mt-0 [&_p]:mb-3 [&_ul]:justify-start">
+            <PopularSearches />
+          </div>
+
+          <div className="mt-8 flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              onClick={scrollToTools}
+              className="group flex cursor-pointer items-center gap-2 rounded-xl bg-blue-600 px-6 py-3.5 text-sm font-semibold text-white shadow-lg shadow-blue-500/25 transition hover:bg-blue-500"
+            >
+              Explore all tools
+              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" aria-hidden="true" />
+            </button>
+            <Link href="/categories" className="rounded-xl border border-slate-800 bg-slate-900 px-6 py-3.5 text-sm font-semibold text-slate-300 transition hover:border-slate-700 hover:bg-slate-800">
+              Browse categories
+            </Link>
+          </div>
+
+          <ul className="mt-8 flex flex-wrap gap-x-6 gap-y-3 text-xs font-semibold text-slate-300">
+            <li className="flex items-center gap-2"><Zap className="h-4 w-4 text-amber-400" aria-hidden="true" />Instant results</li>
+            <li className="flex items-center gap-2"><Lock className="h-4 w-4 text-emerald-400" aria-hidden="true" />Files stay on your device</li>
+            <li className="flex items-center gap-2"><ShieldCheck className="h-4 w-4 text-blue-400" aria-hidden="true" />No account needed</li>
+          </ul>
+        </div>
+
+        {/* Right: live preview of the tool library */}
+        <div className="relative hidden lg:block" aria-hidden="true">
+          <div className="absolute -inset-4 rounded-[2rem] bg-gradient-to-br from-blue-600/20 to-indigo-600/10 blur-2xl" />
+          <div className="relative overflow-hidden rounded-3xl border border-slate-700/70 bg-slate-900/90 shadow-2xl backdrop-blur">
+            <div className="flex items-center gap-2 border-b border-slate-800 px-5 py-3.5">
+              <span className="h-2.5 w-2.5 rounded-full bg-red-400/80" />
+              <span className="h-2.5 w-2.5 rounded-full bg-amber-400/80" />
+              <span className="h-2.5 w-2.5 rounded-full bg-emerald-400/80" />
+              <span className="ml-3 flex-1 rounded-md bg-slate-800 px-3 py-1 text-[11px] text-slate-400">myprotoolshub.com/tools</span>
+            </div>
+            <div className="space-y-2.5 p-5">
+              {preview.map((t) => {
+                const Icon = iconFor(t.category);
+                return (
+                  <div key={t.id} className="flex items-center gap-4 rounded-2xl border border-slate-800 bg-slate-950/70 p-3.5">
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-blue-500/20 bg-blue-500/10 text-blue-400">
+                      <Icon className="h-5 w-5" />
                     </div>
-                    <span className="text-xs font-semibold text-blue-600 bg-blue-100/60 px-2.5 py-1 rounded-md">
-                      {tool.category}
-                    </span>
-                  </Link>
-                ))
-              ) : (
-                <p className="p-4 text-sm text-slate-500 text-center">No matching tools found.</p>
-              )}
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-bold text-slate-200">{t.name}</p>
+                      <p className="truncate text-xs text-slate-400">{t.description}</p>
+                    </div>
+                    <span className="shrink-0 rounded-md bg-slate-800 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-300">{t.category}</span>
+                  </div>
+                );
+              })}
             </div>
-          )}
-        </div>
-
-        {/* Value Highlights */}
-        <div className="mt-14 grid grid-cols-1 sm:grid-cols-3 gap-4 border-t border-slate-200/80 pt-8 max-w-3xl mx-auto">
-          <div className="flex items-center justify-center gap-2 text-xs font-semibold text-slate-600 bg-white/60 py-2.5 px-4 rounded-xl border border-slate-200/60 shadow-sm">
-            <Zap className="h-4 w-4 text-amber-500" />
-            <span>Instant Execution</span>
-          </div>
-          <div className="flex items-center justify-center gap-2 text-xs font-semibold text-slate-600 bg-white/60 py-2.5 px-4 rounded-xl border border-slate-200/60 shadow-sm">
-            <Lock className="h-4 w-4 text-emerald-500" />
-            <span>100% Privacy Preserved</span>
-          </div>
-          <div className="flex items-center justify-center gap-2 text-xs font-semibold text-slate-600 bg-white/60 py-2.5 px-4 rounded-xl border border-slate-200/60 shadow-sm">
-            <ShieldCheck className="h-4 w-4 text-blue-500" />
-            <span>Browser-Based Engine</span>
+            <div className="flex items-center gap-2 border-t border-slate-800 bg-emerald-500/5 px-5 py-3.5 text-xs font-semibold text-emerald-400">
+              <Lock className="h-3.5 w-3.5" /> Processed in your browser, not uploaded
+            </div>
           </div>
         </div>
-
       </div>
     </section>
   );

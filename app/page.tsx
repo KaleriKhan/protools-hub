@@ -3,6 +3,7 @@ import Hero from "@/components/home/Hero";
 import FeaturedCategories from "@/components/home/FeaturedCategories";
 import FeaturedTools from "@/components/home/FeaturedTools";
 import WhyChooseUs from "@/components/home/WhyChooseUs";
+import HomeContent from "@/components/home/HomeContent";
 
 export const metadata: Metadata = {
   title: "ProTools Hub - Free Online Developer & Media Utilities Suite",
@@ -72,6 +73,7 @@ export default function Home() {
       <FeaturedCategories />
       <FeaturedTools />
       <WhyChooseUs />
+      <HomeContent />
     </>
   );
 }
