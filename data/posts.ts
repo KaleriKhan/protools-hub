@@ -20,7 +20,7 @@ export type Post = {
 export const AUTHOR = "ProTools Hub Team";
 export const SITE = "https://myprotoolshub.com";
 
-export const POSTS: Post[] = [
+const RAW_POSTS: Post[] = [
     {
         slug: "how-to-resize-images-without-losing-quality",
         title: "How to Resize Images Without Losing Quality",
@@ -439,6 +439,19 @@ export const POSTS: Post[] = [
         related: ["understanding-pdf-compression", "how-extractive-text-summarization-works"],
     },
 ];
+
+// Read time is computed from the real article text (about 220 words per minute),
+// so it can never disagree with the length of the article.
+const wordsOf = (p: Post) =>
+    [p.excerpt, ...p.takeaways, ...p.sections.flatMap((s) => [s.heading, ...s.body, ...(s.bullets ?? [])]), ...p.faqs.flatMap((f) => [f.q, f.a])]
+        .join(" ")
+        .split(/\s+/)
+        .filter(Boolean).length;
+
+export const POSTS: Post[] = RAW_POSTS.map((p) => ({
+    ...p,
+    readTime: `${Math.max(1, Math.round(wordsOf(p) / 220))} min read`,
+}));
 
 export const getPost = (slug: string) => POSTS.find((p) => p.slug === slug);
 

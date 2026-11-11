@@ -125,7 +125,7 @@ export default function AboutPage() {
                                 <Wrench className="h-3.5 w-3.5" aria-hidden="true" /> About ProTools Hub
                             </span>
                             <h1 className="text-4xl font-black leading-tight tracking-tight text-white sm:text-5xl">
-                                Useful tools that respect
+                                Useful tools that respect{" "}
                                 <span className="block text-sky-300">your files and your time</span>
                             </h1>
                             <p className="text-base leading-relaxed text-slate-300 sm:text-lg">

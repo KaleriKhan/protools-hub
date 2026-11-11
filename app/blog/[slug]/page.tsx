@@ -19,7 +19,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!post) return {};
   const url = `${SITE}/blog/${post.slug}`;
   return {
-    title: `${post.title} | ProTools Hub`,
+    title: post.title,
     description: post.description,
     alternates: { canonical: url },
     authors: [{ name: AUTHOR }],

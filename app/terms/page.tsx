@@ -8,7 +8,7 @@ const EMAIL = "support@myprotoolshub.com";
 const UPDATED = "November 7, 2026";
 
 export const metadata: Metadata = {
-    title: "Terms of Service | ProTools Hub",
+    title: "Terms of Service",
     description:
         "The terms for using ProTools Hub's free online tools: acceptable use, your files, accuracy of results, advertising, disclaimers and liability.",
     metadataBase: new URL(SITE),

@@ -8,7 +8,7 @@ const EMAIL = "support@myprotoolshub.com";
 const UPDATED = "November 7, 2026";
 
 export const metadata: Metadata = {
-    title: "Privacy Policy | ProTools Hub",
+    title: "Privacy Policy",
     description:
         "How ProTools Hub handles your files, cookies, advertising (Google AdSense) and personal data, and the choices and rights you have.",
     metadataBase: new URL(SITE),
