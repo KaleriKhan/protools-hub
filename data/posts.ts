@@ -435,7 +435,7 @@ const RAW_POSTS: Post[] = [
             { q: "Can I use these tools offline?", a: "Once a page has loaded, tools that run fully in the browser often keep working without a connection. Tools that fetch extra resources, such as OCR language data, may need to be online the first time." },
             { q: "How do I know a tool is not uploading my file?", a: "Watch the Network tab in your browser's developer tools while processing a file, or try the tool offline after loading the page." },
         ],
-        tool: { name: "All Tools", href: "/categories", blurb: "Browse free tools for images, PDFs, text and developers that process your files in the browser." },
+        tool: { name: "All Tools", href: "/tools", blurb: "Browse free tools for images, PDFs, text and developers that process your files in the browser." },
         related: ["understanding-pdf-compression", "how-extractive-text-summarization-works"],
     },
 ];

@@ -4,7 +4,7 @@ export const tools = [
         slug: "pdf-to-word",
         name: "PDF to Word",
         category: "PDF",
-        description: "Convert PDF files into editable Word documents.",
+        description: "Convert PDF files into editable Word documents, including scans with OCR.",
         featured: true,
     },
     {
@@ -12,7 +12,7 @@ export const tools = [
         slug: "image-compressor",
         name: "Image Compressor",
         category: "Image",
-        description: "Compress images without losing quality.",
+        description: "Reduce image file size and choose your own quality level. JPG, PNG and WebP.",
         featured: true,
     },
     {
@@ -20,7 +20,7 @@ export const tools = [
         slug: "qr-code-generator",
         name: "QR Code Generator",
         category: "Developer",
-        description: "Generate QR codes instantly.",
+        description: "Create QR codes for links, text and Wi-Fi, then download them as images.",
         featured: true,
     },
     {
@@ -28,7 +28,7 @@ export const tools = [
         slug: "password-generator",
         name: "Password Generator",
         category: "Security",
-        description: "Generate strong passwords.",
+        description: "Generate strong random passwords with the length and character types you choose.",
         featured: true,
     },
     {
@@ -63,7 +63,7 @@ export const tools = [
         slug: "pdf-compressor",
         name: "PDF Compressor",
         category: "PDF",
-        description: "Compress PDF files and reduce their file size.",
+        description: "Reduce PDF file size for email and uploads, with a choice of compression level.",
         featured: true,
     },
     {
@@ -90,16 +90,16 @@ export const tools = [
         name: "Image Resizer & Converter",
         category: "Image",
         description:
-            "Resize dimensions, adjust quality, and convert PNG, JPG, or WEBP images directly in your browser.",
+            "Resize dimensions, adjust quality and convert PNG, JPG or WebP images in your browser.",
         featured: true,
     },
     {
         id: 12,
         slug: "text-summarizer",
-        name: "AI Text Summarizer & Paraphraser",
+        name: "Text Summarizer",
         category: "Text",
         description:
-            "Summarize long articles or rewrite text instantly using fast browser-based processing.",
+            "Pick the key sentences from long text with a browser-based extractive summarizer.",
         featured: true,
     },
     {
@@ -124,15 +124,15 @@ export const tools = [
         slug: "json-schema-generator",
         name: "JSON-LD Schema Generator",
         category: "Developer",
-        description: "Generate Google-compliant structured data markup instantly for high SEO rankings.",
+        description: "Generate valid JSON-LD structured data markup to add to your web pages.",
         featured: true,
     },
     {
         id: 16,
         slug: "image-upscaler",
-        name: "AI Image Upscaler & Enhancer",
+        name: "Image Upscaler",
         category: "Image",
-        description: "Upscale low-resolution photos up to 4x/8x using deep learning super-resolution AI.",
+        description: "Enlarge images with smooth resampling and light sharpening, right in your browser.",
         featured: true,
     }
 ];

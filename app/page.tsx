@@ -6,15 +6,17 @@ import WhyChooseUs from "@/components/home/WhyChooseUs";
 import HomeContent from "@/components/home/HomeContent";
 
 export const metadata: Metadata = {
-  title: "ProTools Hub - Free Online Developer & Media Utilities Suite",
-  description: "Explore 100% free online browser tools including image compressors, background removers, JSON formatters, password generators, and CSS tools.",
+  // Absolute title: the layout template would otherwise add " | ProTools Hub" a second time.
+  title: { absolute: "ProTools Hub: Free Online Tools for PDFs, Images, Text & Code" },
+  description:
+    "Free online tools for PDFs, images, text and code: compress images, convert PDF to Word, format JSON, generate passwords and QR codes. No sign-up needed.",
   keywords: [
     "free online tools",
     "developer utilities",
     "image compressor",
-    "background remover",
+    "pdf to word",
     "json formatter",
-    "protools hub"
+    "protools hub",
   ],
   authors: [{ name: "ProTools Hub" }],
   creator: "ProTools Hub",
@@ -24,8 +26,9 @@ export const metadata: Metadata = {
     canonical: "/",
   },
   openGraph: {
-    title: "ProTools Hub - Free Online Developer & Media Utilities",
-    description: "Access fast, secure, and 100% free browser-based utility tools with zero server uploads.",
+    title: "ProTools Hub: Free Online Tools for PDFs, Images, Text & Code",
+    description:
+      "Free browser-based tools for everyday work with files, images, text and code. No account needed.",
     url: "https://myprotoolshub.com",
     siteName: "ProTools Hub",
     locale: "en_US",
@@ -33,8 +36,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "ProTools Hub | Free Online Tools Suite",
-    description: "Fast, secure, and free online utilities for developers and creators.",
+    title: "ProTools Hub: Free Online Tools",
+    description: "Free online tools for PDFs, images, text and code. No account needed.",
   },
   robots: {
     index: true,
@@ -53,21 +56,21 @@ export default function Home() {
   const schemaData = {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    "name": "ProTools Hub",
-    "url": "https://myprotoolshub.com",
-    "description": "Free online browser utility tools for developers and creators.",
-    "potentialAction": {
+    name: "ProTools Hub",
+    url: "https://myprotoolshub.com",
+    description: "Free online tools for PDFs, images, text and code.",
+    potentialAction: {
       "@type": "SearchAction",
-      "target": "https://myprotoolshub.com/tools?q={search_term_string}",
-      "query-input": "required name=search_term_string"
-    }
+      target: "https://myprotoolshub.com/tools?q={search_term_string}",
+      "query-input": "required name=search_term_string",
+    },
   };
 
   return (
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaData) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaData).replace(/</g, "\\u003c") }}
       />
       <Hero />
       <FeaturedCategories />
