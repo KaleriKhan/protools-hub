@@ -14,7 +14,7 @@ export const metadata: Metadata = {
     metadataBase: new URL(SITE),
     alternates: { canonical: "/privacy" },
     openGraph: {
-        title: "Privacy Policy | ProTools Hub",
+        title: "Privacy Policy",
         description: "How ProTools Hub handles your files, cookies, advertising and personal data.",
         url: `${SITE}/privacy`,
         siteName: "ProTools Hub",

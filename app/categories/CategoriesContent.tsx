@@ -3,6 +3,7 @@
 import { Suspense, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import { tools } from "@/data/tools";
 import {
     Image as ImageIcon, FileText, Search, Sparkles, ArrowRight, ShieldCheck, Layers,
     FileCode, QrCode, Type, Hash, FileJson, Palette, Binary, ScanSearch, Maximize2,
@@ -11,35 +12,26 @@ import {
 
 type ToolCategory = "All" | "PDF" | "Image" | "Text" | "Developer" | "Security";
 
-type ToolItem = {
-    id: string;
-    name: string;
-    description: string;
-    category: Exclude<ToolCategory, "All">;
-    href: string;
-    icon: LucideIcon;
-    badge: string;
-    isPopular?: boolean;
+// Icons by slug; anything else falls back to an icon for its category.
+const SLUG_ICONS: Record<string, LucideIcon> = {
+    "pdf-to-word": FileText, "pdf-compressor": FileText,
+    "image-compressor": ImageIcon, "image-resizer": Maximize2, "image-upscaler": ScanSearch,
+    "password-generator": ShieldCheck, "json-formatter": FileJson, "json-schema-generator": FileCode,
+    "qr-code-generator": QrCode, "base64-encoder": Binary, "markdown-to-html": FileCode,
+    "css-generators": Palette, "glassmorphism-generator": Palette,
+    "text-case-converter": Type, "word-counter": Hash, "text-summarizer": Sparkles,
+    "lorem-ipsum-generator": Type,
 };
 
-// NOTE: check each href matches your real route; the first six are from your old file.
-const TOOLS: ToolItem[] = [
-    { id: "image-compressor", name: "Image Compressor & Converter", description: "Compress JPEG, PNG and WebP images in batches, compare before and after, and download as ZIP or a single PDF.", category: "Image", href: "/tools/image-compressor", icon: ImageIcon, badge: "Batch", isPopular: true },
-    { id: "image-resizer", name: "Image Resizer", description: "Resize by pixels or percent with a locked aspect ratio, size presets and PNG, JPEG or WebP output.", category: "Image", href: "/tools/image-resizer", icon: Maximize2, badge: "Presets" },
-    { id: "image-upscaler", name: "Image Upscaler", description: "Enlarge images with high-quality browser resampling and optional sharpening.", category: "Image", href: "/tools/image-upscaler", icon: ScanSearch, badge: "Resample" },
-    { id: "pdf-compressor", name: "PDF Compressor", description: "Reduce PDF file size in your browser using PDF.js and pdf-lib.", category: "PDF", href: "/tools/pdf-compressor", icon: FileText, badge: "In-browser", isPopular: true },
-    { id: "pdf-to-word", name: "PDF to Word Converter", description: "Convert text and scanned PDFs into editable Word documents with English and Urdu OCR.", category: "PDF", href: "/tools/pdf-to-word", icon: FileText, badge: "OCR", isPopular: true },
-    { id: "password-generator", name: "Password Generator", description: "Generate strong random passwords using your browser's cryptographic random generator.", category: "Security", href: "/tools/password-generator", icon: ShieldCheck, badge: "Secure random", isPopular: true },
-    { id: "json-formatter", name: "JSON Formatter & Validator", description: "Format, validate and minify JSON with clear syntax error messages.", category: "Developer", href: "/tools/json-formatter", icon: FileJson, badge: "Dev tool" },
-    { id: "json-schema-generator", name: "JSON Schema Generator", description: "Generate a JSON Schema from a sample JSON document.", category: "Developer", href: "/tools/json-schema-generator", icon: FileCode, badge: "Dev tool" },
-    { id: "qr-code-generator", name: "QR Code Generator", description: "Create QR codes for links, Wi-Fi, text and email, and download them as PNG.", category: "Developer", href: "/tools/qr-code-generator", icon: QrCode, badge: "PNG export" },
-    { id: "base64-encoder", name: "Base64 Encoder & Decoder", description: "Encode and decode Base64 text, including Unicode and URL-safe variants.", category: "Developer", href: "/tools/base64-encoder", icon: Binary, badge: "Unicode" },
-    { id: "markdown-to-html", name: "Markdown to HTML", description: "Convert Markdown to clean HTML with a live preview.", category: "Developer", href: "/tools/markdown-to-html", icon: FileCode, badge: "Live preview" },
-    { id: "css-generators", name: "CSS Generators", description: "Glassmorphism, box shadow, gradient, flexbox and 15 more CSS generators with copy-ready code.", category: "Developer", href: "/tools/glassmorphism-generator", icon: Palette, badge: "19 tools" },
-    { id: "text-case-converter", name: "Text Case Converter", description: "Switch text between upper, lower, title, sentence, camel, snake and kebab case.", category: "Text", href: "/tools/text-case-converter", icon: Type, badge: "Instant" },
-    { id: "word-counter", name: "Word Counter", description: "Count words, characters, sentences and reading time, including Arabic and Urdu text.", category: "Text", href: "/tools/word-counter", icon: Hash, badge: "Live count" },
-    { id: "text-summarizer", name: "Text Summarizer", description: "Pick the most important sentences from long text with extractive summarizing.", category: "Text", href: "/tools/text-summarizer", icon: Sparkles, badge: "Extractive" },
-];
+const iconFor = (slug: string, category: string): LucideIcon => {
+    if (SLUG_ICONS[slug]) return SLUG_ICONS[slug];
+    const c = category.toLowerCase();
+    if (c.includes("pdf")) return FileText;
+    if (c.includes("image")) return ImageIcon;
+    if (c.includes("text")) return Type;
+    if (c.includes("secur")) return ShieldCheck;
+    return FileCode;
+};
 
 const CATEGORIES: ToolCategory[] = ["All", "PDF", "Image", "Text", "Developer", "Security"];
 
@@ -60,9 +52,9 @@ function Inner() {
 
     const filtered = useMemo(() => {
         const q = query.trim().toLowerCase();
-        return TOOLS.filter(
+        return tools.filter(
             (t) =>
-                (selected === "All" || t.category === selected) &&
+                (selected === "All" || t.category.toLowerCase().includes(selected.toLowerCase())) &&
                 (!q || t.name.toLowerCase().includes(q) || t.description.toLowerCase().includes(q))
         );
     }, [selected, query]);
@@ -92,9 +84,8 @@ function Inner() {
                                 role="tab"
                                 aria-selected={selected === cat}
                                 onClick={() => setSelected(cat)}
-                                className={`shrink-0 cursor-pointer rounded-xl px-4 py-2 text-xs font-bold transition ${
-                                    selected === cat ? "bg-blue-600 text-white shadow-sm" : "bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white"
-                                }`}
+                                className={`shrink-0 cursor-pointer rounded-xl px-4 py-2 text-xs font-bold transition ${selected === cat ? "bg-blue-600 text-white shadow-sm" : "bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white"
+                                    }`}
                             >
                                 {cat === "All" ? "All" : cat}
                             </button>
@@ -118,11 +109,11 @@ function Inner() {
                 {filtered.length > 0 ? (
                     <div className="grid gap-6 md:grid-cols-2">
                         {filtered.map((tool) => {
-                            const Icon = tool.icon;
+                            const Icon = iconFor(tool.slug, tool.category);
                             return (
                                 <Link
                                     key={tool.id}
-                                    href={tool.href}
+                                    href={`/tools/${tool.slug}`}
                                     className="group flex flex-col justify-between rounded-3xl border border-slate-800 bg-slate-900 p-6 shadow-sm transition-all duration-200 hover:border-blue-500/50 hover:shadow-xl hover:shadow-blue-500/5"
                                 >
                                     <div className="space-y-4">
@@ -130,16 +121,11 @@ function Inner() {
                                             <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-blue-500/20 bg-blue-500/10 text-blue-400 transition-all duration-200 group-hover:bg-blue-600 group-hover:text-white">
                                                 <Icon className="h-6 w-6" aria-hidden="true" />
                                             </div>
-                                            <div className="flex items-center gap-2">
-                                                {tool.isPopular && (
-                                                    <span className="rounded-md border border-amber-500/20 bg-amber-500/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-amber-400">Popular</span>
-                                                )}
-                                                <span className="rounded-md border border-slate-700 bg-slate-800 px-2.5 py-1 text-[10px] font-bold text-slate-300">{tool.badge}</span>
-                                            </div>
+                                            <span className="rounded-md border border-slate-700 bg-slate-800 px-2.5 py-1 text-[10px] font-bold text-slate-300">{tool.category}</span>
                                         </div>
                                         <div className="space-y-1.5">
                                             <h2 className="text-base font-bold text-white transition group-hover:text-blue-400">{tool.name}</h2>
-                                            <p className="text-xs leading-relaxed text-slate-400">{tool.description}</p>
+                                            <p className="line-clamp-3 text-xs leading-relaxed text-slate-400">{tool.description}</p>
                                         </div>
                                     </div>
                                     <div className="mt-6 flex items-center justify-between border-t border-slate-800 pt-4">
@@ -172,9 +158,28 @@ function Inner() {
     );
 }
 
+// Server-rendered fallback: crawlers see an H1 and a link to every tool.
+function StaticCategories() {
+    return (
+        <div className="bg-slate-950 px-4 py-12 sm:px-6 lg:px-8">
+            <section className="mx-auto max-w-5xl space-y-8">
+                <h1 className="text-center text-3xl font-extrabold tracking-tight text-white md:text-4xl">Tool categories</h1>
+                <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    {tools.map((tool) => (
+                        <li key={tool.slug} className="rounded-2xl border border-slate-800 bg-slate-900 p-5">
+                            <Link href={`/tools/${tool.slug}`} className="font-bold text-white hover:text-blue-400">{tool.name}</Link>
+                            <p className="mt-1.5 text-sm text-slate-400">{tool.description}</p>
+                        </li>
+                    ))}
+                </ul>
+            </section>
+        </div>
+    );
+}
+
 export default function CategoriesContent() {
     return (
-        <Suspense fallback={<div className="p-12 text-center text-sm text-slate-400">Loading tools…</div>}>
+        <Suspense fallback={<StaticCategories />}>
             <Inner />
         </Suspense>
     );

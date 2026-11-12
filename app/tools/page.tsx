@@ -155,9 +155,36 @@ function Directory() {
     );
 }
 
+// Shown in the server-rendered HTML (and until the client search loads), so crawlers
+// always see the H1 and a real link to every tool instead of "Loading".
+function StaticDirectory() {
+    return (
+        <div className="bg-slate-950 px-4 py-12 sm:px-6 lg:px-8">
+            <section className="mx-auto max-w-5xl space-y-8">
+                <div className="mx-auto max-w-2xl space-y-3 text-center">
+                    <h1 className="text-3xl font-extrabold tracking-tight text-white md:text-4xl">Free online tools</h1>
+                    <p className="text-sm leading-relaxed text-slate-400">
+                        {tools.length} free tools for working with PDFs, images, text and code.
+                    </p>
+                </div>
+                <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    {tools.map((tool) => (
+                        <li key={tool.slug} className="rounded-2xl border border-slate-800 bg-slate-900 p-5">
+                            <Link href={`/tools/${tool.slug}`} className="font-bold text-white hover:text-blue-400">
+                                {tool.name}
+                            </Link>
+                            <p className="mt-1.5 text-sm leading-relaxed text-slate-400">{tool.description}</p>
+                        </li>
+                    ))}
+                </ul>
+            </section>
+        </div>
+    );
+}
+
 export default function ToolsPage() {
     return (
-        <Suspense fallback={<div className="p-12 text-center text-sm text-slate-400">Loading tools…</div>}>
+        <Suspense fallback={<StaticDirectory />}>
             <Directory />
         </Suspense>
     );

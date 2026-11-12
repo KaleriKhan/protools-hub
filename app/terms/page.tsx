@@ -14,7 +14,7 @@ export const metadata: Metadata = {
     metadataBase: new URL(SITE),
     alternates: { canonical: "/terms" },
     openGraph: {
-        title: "Terms of Service | ProTools Hub",
+        title: "Terms of Service",
         description: "The rules for using ProTools Hub's free online tools.",
         url: `${SITE}/terms`,
         siteName: "ProTools Hub",

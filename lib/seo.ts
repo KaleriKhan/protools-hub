@@ -1,4 +1,3 @@
-// lib/seo.ts
 import type { Metadata } from "next";
 
 export const SITE_URL = "https://myprotoolshub.com";
@@ -6,9 +5,7 @@ export const SITE_NAME = "ProTools Hub";
 
 export type ToolLike = { slug: string; name: string; description: string; category: string };
 
-// Hand-written titles/descriptions for each tool (titles <= ~60 chars, descriptions <= ~155).
-// The layout adds " | ProTools Hub" through its title template, so do not repeat it here.
-// Any slug not listed here falls back to an automatic title and description.
+
 const SEO: Record<string, { title: string; description: string; keywords: string[] }> = {
     "pdf-to-word": {
         title: "PDF to Word Converter, Free Online with OCR",
@@ -22,7 +19,7 @@ const SEO: Record<string, { title: string; description: string; keywords: string
     },
     "image-compressor": {
         title: "Image Compressor, Compress JPG, PNG & WebP Free",
-        description: "Compress JPEG, PNG and WebP images free in your browser. Batch compress, compare before and after, and download as ZIP or PDF. No upload needed.",
+        description: "Compress JPEG, PNG and WebP images free in your browser. Choose the quality, compare before and after, and download the result. No upload needed.",
         keywords: ["image compressor", "compress jpg", "compress png", "reduce image size"],
     },
     "image-resizer": {
