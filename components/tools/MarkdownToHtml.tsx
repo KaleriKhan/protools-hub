@@ -680,9 +680,9 @@ export default function MarkdownToHtml() {
                             <Code2 className="h-6 w-6" />
                         </div>
                         <div>
-                            <h1 className="text-xl font-bold text-white">
+                            <h2 className="text-xl font-bold text-white">
                                 Markdown to HTML Converter
-                            </h1>
+                            </h2>
                             <p className="text-sm text-slate-400">
                                 Write Markdown, see a live preview, and copy clean HTML.
                             </p>

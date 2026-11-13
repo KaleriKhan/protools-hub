@@ -1629,7 +1629,7 @@ export default function GlassmorphismGenerator({ initialTool }: { initialTool?: 
                   <Icon className="h-6 w-6" />
                 </div>
                 <div>
-                  <h1 className="text-xl font-bold text-slate-100">{gen.name}</h1>
+                  <h2 className="text-xl font-bold text-slate-100">{gen.name}</h2>
                   <p className="text-xs text-slate-400">{gen.summary}</p>
                 </div>
               </div>

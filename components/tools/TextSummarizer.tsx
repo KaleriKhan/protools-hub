@@ -225,7 +225,7 @@ const FAQS: { q: string; a: string }[] = [
     },
     {
         q: "Is my text uploaded or stored?",
-        a: "No. The text is analysed by JavaScript running on your own device and is never sent to our servers or any third party. Nothing is saved, so closing or refreshing the page removes it. You can check this in your browser's network tab.",
+        a: "No. The text is analyzed by JavaScript running on your own device and is never sent to our servers or any third party. Nothing is saved, so closing or refreshing the page removes it. You can check this in your browser's network tab.",
     },
     {
         q: "How does it decide which sentences matter?",
@@ -245,7 +245,7 @@ const FAQS: { q: string; a: string }[] = [
     },
     {
         q: "How long should the summary be?",
-        a: "The slider sets the share of sentences kept, from 5% to 70%. About 20 to 30% suits most articles. Very short texts of just a few sentences cannot be shortened meaningfully, and the tool will say so.",
+        a: "The slider sets the share of sentences kept, from 5% to 70%. About 25% suits most articles. Very short texts of just a few sentences cannot be shortened meaningfully, and the tool will say so.",
     },
 ];
 
@@ -362,7 +362,7 @@ export default function TextSummarizer() {
                             <FileText className="h-6 w-6" />
                         </div>
                         <div>
-                            <h2 className="text-xl font-bold text-slate-100">Text Summarizer</h2>
+                            <p className="text-xl font-bold text-slate-100">Text Summarizer</p>
                             <p className="text-xs text-slate-400">
                                 Shorten articles and documents by keeping their most important sentences.
                             </p>
@@ -473,7 +473,7 @@ export default function TextSummarizer() {
                         <div className="mt-2 flex gap-2">
                             {[
                                 ["Short", 15],
-                                ["Medium", 30],
+                                ["Medium", 25],
                                 ["Long", 50],
                             ].map(([l, v]) => (
                                 <button
@@ -626,7 +626,7 @@ export default function TextSummarizer() {
                     </p>
                     <p>
                         It is deliberately simple and transparent. There is no hidden AI service and no upload: the text is
-                        analysed by a standard word-frequency method that runs in your browser. Because it only selects
+                        analyzed by a standard word-frequency method that runs in your browser. Because it only selects
                         existing sentences, it cannot make up facts, but it also cannot rephrase or understand context. The
                         sections below explain exactly how it works and where it falls short.
                     </p>
@@ -674,7 +674,7 @@ export default function TextSummarizer() {
                             "Adjustable length from 5% to 70% of the original",
                             "Paragraph or bullet-point output, original or ranked order",
                             "Shows words saved, reading time saved and key terms",
-                            "Works with Urdu, Arabic and other languages that use spaces",
+                            "Works with Urdu, Arabic and other languages that use spaces (the ignored-word list is English only, so results can be rougher)",
                         ].map((t) => (
                             <li key={t} className="flex items-start gap-2.5">
                                 <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-400" />
@@ -790,7 +790,7 @@ export default function TextSummarizer() {
                         >
                             <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-semibold text-slate-100">
                                 {f.q}
-                                <span className="text-slate-500 transition group-open:rotate-45">+</span>
+                                <span aria-hidden="true" className="text-slate-500 transition group-open:rotate-45">+</span>
                             </summary>
                             <p className="mt-3 text-xs leading-relaxed text-slate-400">{f.a}</p>
                         </details>

@@ -528,7 +528,7 @@ export default function ImageCompressor() {
                         {/* File bar */}
                         <div className="flex flex-col gap-3 rounded-2xl border border-slate-800 bg-slate-950/50 p-4 sm:flex-row sm:items-center sm:justify-between">
                             <div className="flex min-w-0 items-center gap-3">
-                                <img src={src.url} alt="" className="h-12 w-12 shrink-0 rounded-lg border border-slate-800 object-cover" />
+                                <img src={src.url} alt="Preview of the selected image" className="h-12 w-12 shrink-0 rounded-lg border border-slate-800 object-cover" />
                                 <div className="min-w-0">
                                     <p className="truncate text-sm font-bold text-slate-100">{src.file.name}</p>
                                     <p className="text-xs text-slate-400">
@@ -962,7 +962,7 @@ export default function ImageCompressor() {
                         <details key={f.q} className="group rounded-2xl border border-slate-800 bg-slate-950/60 p-4 open:border-slate-700">
                             <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-semibold text-slate-100">
                                 {f.q}
-                                <span className="text-slate-500 transition group-open:rotate-45">+</span>
+                                <span aria-hidden="true" className="text-slate-500 transition group-open:rotate-45">+</span>
                             </summary>
                             <p className="mt-3 text-xs leading-relaxed text-slate-400">{f.a}</p>
                         </details>
@@ -976,7 +976,7 @@ export default function ImageCompressor() {
                 <div className="grid gap-3 sm:grid-cols-2">
                     {[
                         { href: "/tools/image-resizer", t: "Image Resizer", d: "Set exact dimensions, with crop and presets." },
-                        { href: "/tools/image-upscaler", t: "Image Upscaler", d: "Enlarge images with sharpening." },
+                        { href: "/tools/image-upscaler", t: "Image Upscaler", d: "Enlarge images with smooth resampling and optional sharpening." },
                     ].map((l) => (
                         <Link
                             key={l.href}

@@ -396,7 +396,7 @@ export default function ImageUpscaler() {
         <div className="w-full max-w-6xl mx-auto space-y-8 p-4 md:p-8">
             <script
                 type="application/ld+json"
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema).replace(/</g, "\\u003c") }}
             />
 
             {/* ================= TOOL CARD ================= */}
@@ -408,9 +408,9 @@ export default function ImageUpscaler() {
                             <Maximize2 className="h-6 w-6" />
                         </div>
                         <div>
-                            <h1 className="text-xl font-bold text-white">
-                                Image Upscaler & Enlarger
-                            </h1>
+                            <h2 className="text-xl font-bold text-white">
+                                Image Upscaler &amp; Enlarger
+                            </h2>
                             <p className="text-sm text-slate-400">
                                 Enlarge photos and graphics up to 4x in your browser, with
                                 optional sharpening. No uploads.
@@ -902,7 +902,7 @@ export default function ImageUpscaler() {
                         <HelpCircle className="h-5 w-5" />
                     </div>
                     <h2 className="text-xl font-extrabold text-white">
-                        About the Image Upscaler & Enlarger
+                        About the Image Upscaler &amp; Enlarger
                     </h2>
                 </div>
                 <p className="text-slate-300 text-base leading-relaxed">
@@ -1088,7 +1088,7 @@ export default function ImageUpscaler() {
                 <p className="text-slate-300 text-base leading-relaxed">
                     A digital image is a grid of pixels. To make it larger, software must
                     decide what color each new pixel should be. This is called
-                    interpolation: the program looks at neighbouring pixels and calculates a
+                    interpolation: the program looks at neighboring pixels and calculates a
                     smooth blend between them. Higher-quality interpolation methods produce
                     smoother gradients and cleaner edges than simply stretching pixels.
                 </p>
@@ -1107,7 +1107,7 @@ export default function ImageUpscaler() {
                         href="/tools/image-resizer"
                         className="text-blue-400 underline hover:text-blue-300"
                     >
-                        Image Resizer & Converter
+                        Image Resizer &amp; Converter
                     </Link>
                     ,{" "}
                     <Link
