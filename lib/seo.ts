@@ -9,7 +9,7 @@ export type ToolLike = { slug: string; name: string; description: string; catego
 const SEO: Record<string, { title: string; description: string; keywords: string[] }> = {
     "pdf-to-word": {
         title: "PDF to Word Converter, Free Online with OCR",
-        description: "Convert PDF files to editable Word documents free in your browser. Handles scanned PDFs with English and Urdu OCR. No sign-up, no upload to our servers.",
+        description: "Convert PDF files to editable Word documents free in your browser. Includes OCR for scanned PDFs, so you can check the text before you download. No sign-up needed.",
         keywords: ["pdf to word", "convert pdf to docx", "pdf to word ocr", "scanned pdf to word"],
     },
     "pdf-compressor": {

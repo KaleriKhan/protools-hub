@@ -169,6 +169,114 @@ const RAW_POSTS: Post[] = [
         related: ["how-local-image-compression-speeds-up-seo", "why-in-browser-file-processing-means-100-percent-privacy"],
     },
     {
+        slug: "how-to-convert-scanned-pdf-to-word-with-ocr",
+        title: "How to Convert a Scanned PDF to Word with OCR (and What to Expect)",
+        excerpt: "Learn how OCR turns a scanned PDF into editable text, how to get cleaner results, and where it still makes mistakes, with a real test.",
+        description: "Step-by-step guide to converting a scanned PDF to an editable Word file with OCR: how to prepare the scan, what to check, and the limits, with a real test.",
+        category: "Tutorials",
+        date: "2026-11-14",
+        readTime: "7 min read",
+        takeaways: [
+            "A scanned PDF is a picture of a page, so you need OCR (optical character recognition) to get editable text from it.",
+            "Clean, straight, high-contrast scans give far better results than blurry or tilted ones.",
+            "OCR output always needs proofreading, especially numbers, names and non-English text.",
+            "In our own test, English text and numbers came out well, but a line of Urdu text was misread.",
+        ],
+        sections: [
+            {
+                id: "scanned-vs-text",
+                heading: "Scanned PDFs and text PDFs are different things",
+                body: [
+                    "Some PDFs contain real text. You can click into them, select a sentence and copy it. Others are scans: each page is stored as a photograph of paper. To a computer, a scanned page has no letters at all, only patches of dark and light pixels. That is why copying from a scan gives you nothing, and why converting it to Word needs an extra step.",
+                    "A quick test is to try to select a word with your mouse, or press Ctrl+F and search for a word you can see. If nothing is selected or found, the file is almost certainly a scan and will need OCR. If the text is real, a normal conversion is faster and more accurate, because the letters are already stored as text.",
+                ],
+            },
+            {
+                id: "what-ocr-does",
+                heading: "What OCR actually does",
+                body: [
+                    "OCR stands for optical character recognition. The software looks at the picture of a page, finds lines and words, and decides which character each shape most likely is. It then writes those characters out as text that you can edit, search and copy.",
+                    "Because it is making a best guess for every character, OCR is never perfect. It does best on clean printed text in a common language, and it struggles with handwriting, decorative fonts, very small print, smudges and low-resolution scans.",
+                ],
+            },
+            {
+                id: "prepare-scan",
+                heading: "Prepare the scan for better results",
+                body: [
+                    "Most OCR problems start with the scan, not the software. A few minutes of preparation usually improves the result more than any setting.",
+                ],
+                bullets: [
+                    "Scan at 300 DPI or higher for normal print. Lower resolutions make letters blur together.",
+                    "Place the page flat and straight. A tilted page makes lines of text harder to follow.",
+                    "Use good, even light and avoid shadows from the page edge or your hand.",
+                    "Choose black and white or greyscale for plain text rather than a colour photo.",
+                    "Make sure the page is the right way up before you convert it.",
+                    "Keep the file as a PDF or a clear image, not a heavily compressed copy.",
+                ],
+            },
+            {
+                id: "step-by-step",
+                heading: "Step by step: converting with the ProTools Hub PDF to Word tool",
+                body: ["The steps below use the free PDF to Word tool on this site."],
+                bullets: [
+                    "Open the PDF to Word tool and choose your PDF file.",
+                    "If the page is a scan, select the language of the text so the OCR knows what to expect. Pages that already contain real text do not need OCR, and the language setting is ignored for them.",
+                    "Start the conversion and wait while each page is read. Scanned pages take longer than text pages.",
+                    "Read the text preview shown on the page. This is the most important step, because it shows you what the software actually recognised.",
+                    "Download the result as a .docx file, save it as plain .txt, or copy the text.",
+                ],
+            },
+            {
+                id: "what-we-tested",
+                heading: "What we tested: a real one-page scan",
+                body: [
+                    "We tested the tool with a one-page scanned PDF that contained an English heading, an English sentence, a line of Urdu text and a line mixing English with numbers. The tool reported one page converted with OCR, 41 words extracted, and a .docx file of 8.5 KB.",
+                    "The English heading, \"PDF to Word OCR Test\", was recognised correctly. The English sentence, \"This is an English sentence for OCR testing. The quick brown fox jumps over the lazy dog.\", was also correct. The last line, \"English + Urdu OCR Test - 12345\", came out correctly, including the numbers.",
+                    "The Urdu line did not. Instead of readable Urdu, the preview showed scattered letters and symbols, and some of that noise was attached to the end of the English sentence. This is useful to know: a result can look finished, with a green success message and a word count, and still contain unreadable text. That is exactly why the tool tells you to proofread OCR pages.",
+                    "This was one small test page, so it is an illustration, not a measurement of accuracy. We do not know yet whether the Urdu result would improve with a larger, sharper scan or a different language setting, and we will update this guide when we have tested that.",
+                ],
+            },
+            {
+                id: "why-urdu-hard",
+                heading: "Why Urdu and similar scripts are harder",
+                body: [
+                    "Urdu is written right to left in a connected script, where the shape of a letter changes depending on its neighbours. Many printed Urdu documents also use calligraphic styles, which are harder for software to read than a plain typeface. Mixing English and Urdu on the same line adds another difficulty, because the software has to switch direction and language.",
+                    "If your document is mostly Urdu, Arabic or another script, treat OCR as a first draft. Check every line, and if accuracy is important, retype or verify the text yourself.",
+                ],
+            },
+            {
+                id: "proofread",
+                heading: "How to proofread OCR text",
+                body: [
+                    "Read the output next to the original page. The mistakes that matter most are the ones that look plausible, such as a wrong digit in a date or amount.",
+                ],
+                bullets: [
+                    "Check every number, date, amount and phone number against the page.",
+                    "Look for letters confused with similar shapes, such as the letter O and the number 0, or l and 1.",
+                    "Check names and addresses, which spell-checkers cannot fix.",
+                    "Read lines near the page edge, which are often cut off or distorted.",
+                    "Watch for random symbols or short strings of unusual characters, which usually mean a line was misread.",
+                ],
+            },
+            {
+                id: "limits",
+                heading: "What a PDF to Word conversion does not keep",
+                body: [
+                    "The tool converts text. Images, tables, multiple columns and exact fonts are not recreated in the Word file, and the page tells you so before you download. After converting, expect to reapply headings, spacing and layout in Word. For a document with many tables or images, converting only the text and rebuilding the layout is often faster than trying to fix a layout that was guessed.",
+                ],
+            },
+        ],
+        faqs: [
+            { q: "How do I know if my PDF is scanned?", a: "Try to select a word with your mouse or search for it with Ctrl+F. If nothing is selected or found, the page is an image and needs OCR." },
+            { q: "Why is my OCR text full of strange characters?", a: "The software could not read that part of the page. Common causes are a low-resolution scan, a tilted page, shadows, handwriting or a language the OCR was not set to read. Try a cleaner scan and the correct language." },
+            { q: "Is OCR accurate for Urdu?", a: "It is generally harder than for English because of the connected right-to-left script. In our one-page test, the English text and numbers were read correctly but the Urdu line was not. Always proofread Urdu output carefully." },
+            { q: "Will the Word file look like the original PDF?", a: "No. The tool converts text only. Images, tables, columns and exact fonts are not recreated, so you will need to adjust the layout in Word." },
+            { q: "What resolution should I scan at?", a: "300 DPI is a good standard for printed text. Very small print can benefit from 400 to 600 DPI, though files become larger." },
+        ],
+        tool: { name: "PDF to Word", href: "/tools/pdf-to-word", blurb: "Convert PDF files to editable Word documents, with OCR for scanned pages, and check the text before you download." },
+        related: ["understanding-pdf-compression", "why-in-browser-file-processing-means-100-percent-privacy"],
+    },
+    {
         slug: "how-extractive-text-summarization-works",
         title: "How Extractive Text Summarization Works (and Where It Falls Short)",
         excerpt: "Learn how sentence scoring picks the key lines from long text, and when you should read the full source instead.",
@@ -493,6 +601,8 @@ const RAW_POSTS: Post[] = [
     },
 ];
 
+// Read time is computed from the real article text (about 220 words per minute),
+// so it can never disagree with the length of the article.
 const wordsOf = (p: Post) =>
     [p.excerpt, ...p.takeaways, ...p.sections.flatMap((s) => [s.heading, ...s.body, ...(s.bullets ?? [])]), ...p.faqs.flatMap((f) => [f.q, f.a])]
         .join(" ")
