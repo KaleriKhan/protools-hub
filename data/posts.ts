@@ -23,11 +23,12 @@ export const SITE = "https://myprotoolshub.com";
 const RAW_POSTS: Post[] = [
     {
         slug: "how-to-resize-images-without-losing-quality",
-        title: "How to Resize Images Without Losing Quality",
+        title: "How to Resize Images Without Losing Quality: A Step-by-Step Guide",
         excerpt: "Pick the right dimensions and format, avoid repeated re-compression, and resize images in your browser without uploading them anywhere.",
         description: "Learn how to resize images without visible quality loss: choose the right dimensions, pick JPEG, PNG or WebP, and avoid the mistakes that blur photos.",
         category: "Optimization",
         date: "2026-09-11",
+        updated: "2026-11-13",
         readTime: "7 min read",
         featured: true,
         takeaways: [
@@ -65,6 +66,55 @@ const RAW_POSTS: Post[] = [
                 heading: "Keep the aspect ratio locked",
                 body: [
                     "The aspect ratio is the proportion between width and height. If you change only one dimension, the picture stretches and people look wider or thinner. Locking the aspect ratio means that when you type a new width, the height is calculated for you. Unlock it only when you genuinely need a different shape, and in that case crop first instead of stretching.",
+                ],
+            },
+            {
+                id: "worked-example",
+                heading: "A worked example: from a 4000 px photo to a web image",
+                body: [
+                    "Suppose a phone or camera gives you a photo that is 4000 pixels wide and 3000 pixels high. That is 12 million pixels (4000 x 3000 = 12,000,000), which is far more than a web page can show. You want to place it in a blog post where the content column is 800 pixels wide.",
+                    "Because screens with high pixel density show images at roughly twice their layout width, a sensible export width is 1600 pixels. Keeping the aspect ratio, the height follows from the original proportions: 1600 x (3000 / 4000) = 1200 pixels. The result is 1600 x 1200, or 1.92 million pixels, which is only 16 percent of the original pixel count (1,920,000 / 12,000,000). The picture still looks crisp in the 800 pixel column, but the data the browser must download is a small fraction of what the camera produced.",
+                    "If you only need a 1200 pixel wide version for an email, the same calculation gives 1200 x 900. The rule is always the same: new height = new width x (original height / original width). A locked aspect ratio does this arithmetic for you.",
+                ],
+            },
+            {
+                id: "step-by-step",
+                heading: "Step by step: resizing an image with the ProTools Hub Image Resizer",
+                body: [
+                    "The steps below use the free Image Resizer, which works in your browser. The same ideas apply in any editor.",
+                ],
+                bullets: [
+                    "Open the Image Resizer and choose your photo, or drag it onto the page. Files up to 20 MB are accepted.",
+                    "Pick how you want to size it: exact pixels, a percentage of the original, or a preset such as Full HD or a social media size.",
+                    "Keep the aspect ratio locked and type the new width. The height is calculated automatically. If you pick a preset with a different shape from your photo, choose Cover to fill the frame and crop the overflow, or Contain to fit the whole picture with empty space around it.",
+                    "Choose the output format and quality. For a photo, JPEG or WebP at around 80 percent is a good starting point. For a logo or screenshot, choose PNG.",
+                    "Process the image, compare the result with the original, and download it. Your original file is never changed, so you can try again with different settings.",
+                ],
+            },
+            {
+                id: "check-result",
+                heading: "How to check that the result is good enough",
+                body: [
+                    "Do not judge a resized image at a glance. Open it at 100 percent zoom and look at the areas where quality problems show first: text, thin lines, hair, foliage and the edges of objects against a plain background. If those look clean, the image is ready. If you see blocks or a halo around edges, raise the quality setting or choose a different format.",
+                    "Also compare file sizes. A good web photo is often a few hundred kilobytes. If your result is several megabytes, the dimensions are probably still larger than they need to be, or the quality setting is too high. Reducing the width usually saves more space than lowering quality, so adjust the dimensions first.",
+                ],
+            },
+            {
+                id: "what-we-tested",
+                heading: "What we tested: a real resize, with the numbers",
+                body: [
+                    "To check the steps above, we ran a real photo through the ProTools Hub Image Resizer: a portrait on a white background, 679 x 452 pixels and 13.5 KB. We set the width to 440 pixels with the aspect ratio locked and exported it as WebP. The tool calculated the height as 293 pixels, which matches the formula 440 x (452 / 679) = 292.9, rounded to 293.",
+                    "The result was a 440 x 293 pixel WebP file of 9.4 KB, which the tool reported as 30.5 percent smaller. Compared side by side at the same display size, the face, hair and the edge of the clothing looked the same as the original, and nothing was stretched.",
+                    "One detail is worth noticing. The new image has only 42 percent of the original pixels (128,920 compared with 306,908), yet the file shrank by about 30 percent rather than 58. The reason is that the original was already a small, well compressed file, so there was less to save. The big savings in the earlier example come from starting with a very large camera photo. If your image is already small, expect a smaller gain.",
+                    "This was a single test with one image, so treat the numbers as an illustration, not a benchmark. Your results will depend on the picture, its original format and the quality setting you choose.",
+                ],
+            },
+            {
+                id: "which-size",
+                heading: "Resize, crop or compress: which one do you need?",
+                body: [
+                    "These three jobs are often confused. Resizing changes the pixel dimensions of the whole picture. Cropping removes part of the picture to change its shape or focus. Compressing keeps the dimensions but stores the data more compactly, usually by discarding detail the eye is unlikely to notice.",
+                    "If a page is slow because an image is huge, resize first and compress second. If an upload form rejects a file because it is a few kilobytes over a limit, compression alone is often enough. If a platform needs an exact shape, such as a square profile picture, crop or use a preset that crops for you.",
                 ],
             },
             {
@@ -111,6 +161,9 @@ const RAW_POSTS: Post[] = [
             { q: "Does resizing reduce image quality?", a: "Shrinking an image keeps it sharp when done from the original file. Quality drops mainly when you enlarge an image or repeatedly re-save a JPEG." },
             { q: "What is the best format for a resized photo?", a: "JPEG is the safest all-round choice for photos. WebP is often smaller at similar quality and is supported by current major browsers." },
             { q: "Can I make a small image bigger without it looking blurry?", a: "Not reliably. Enlarging cannot add real detail, so the result looks softer. Start from the largest original you have." },
+            { q: "What size should I resize a photo to for a website?", a: "Export at about twice the width it is displayed at, and no more. For an 800 pixel wide content column, 1600 pixels wide is plenty. Larger files only slow the page down." },
+            { q: "Why did my resized image get a different shape?", a: "The aspect ratio was probably unlocked, or you chose a preset with different proportions. Lock the ratio to keep the shape, or use a fit mode that crops instead of stretching." },
+            { q: "Is it safe to resize photos online?", a: "It depends on the tool. Many sites upload your file to a server. A browser-based tool processes the file on your device. You can check by watching the Network tab in your browser's developer tools while you resize." },
         ],
         tool: { name: "Image Resizer", href: "/tools/image-resizer", blurb: "Resize by pixels or percent, lock the aspect ratio and export PNG, JPEG or WebP, all in your browser." },
         related: ["how-local-image-compression-speeds-up-seo", "why-in-browser-file-processing-means-100-percent-privacy"],
@@ -440,8 +493,6 @@ const RAW_POSTS: Post[] = [
     },
 ];
 
-// Read time is computed from the real article text (about 220 words per minute),
-// so it can never disagree with the length of the article.
 const wordsOf = (p: Post) =>
     [p.excerpt, ...p.takeaways, ...p.sections.flatMap((s) => [s.heading, ...s.body, ...(s.bullets ?? [])]), ...p.faqs.flatMap((f) => [f.q, f.a])]
         .join(" ")
